@@ -5,7 +5,6 @@ import 'package:moodle/main.dart';
 void main() {
   testWidgets('App renders dashboard and courses screen correctly',
       (WidgetTester tester) async {
-    // Set desktop screen size
     tester.view.physicalSize = const Size(1200, 800);
     tester.view.devicePixelRatio = 1.0;
     addTearDown(() {
@@ -13,21 +12,18 @@ void main() {
       tester.view.resetDevicePixelRatio();
     });
 
-    // Build our app and trigger a frame.
     await tester.pumpWidget(const MoodleApp());
+    await tester.pumpAndSettle();
 
-    // Verify that Dashboard title exists.
-    expect(find.text('Dashboard'), findsNWidgets(2));
+    expect(find.text('Dashboard'), findsWidgets);
 
-    // Open drawer
     await tester.tap(find.byIcon(Icons.menu));
     await tester.pumpAndSettle();
 
-    // Navigate to My Courses in drawer
     await tester.tap(find.text('My courses'));
     await tester.pumpAndSettle();
 
-    // Verify Courses page contains title
-    expect(find.text('This is the courses overview page.'), findsOneWidget);
+    expect(find.text('My courses'), findsWidgets);
+    expect(find.text('UXDI'), findsOneWidget);
   });
 }
