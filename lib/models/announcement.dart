@@ -2,14 +2,14 @@ class Announcement {
   const Announcement({
     required this.id,
     required this.title,
-    required this.message,
+    required this.body,
     required this.date,
-    required this.isRead,
+    this.courseId,
   });
 
   final String id;
   final String title;
-  final String message;
+  final String body;
   final DateTime date;
-  final bool isRead;
+  final String? courseId;
 }

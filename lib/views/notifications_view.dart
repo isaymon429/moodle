@@ -48,6 +48,7 @@ class _NotificationsViewState extends State<NotificationsView> {
                   ...notifications.announcements.map(
                     (announcement) => _AnnouncementTile(
                       announcement: announcement,
+                      isRead: notifications.isRead(announcement.id),
                       onTap: () {
                         context
                             .read<NotificationProvider>()
@@ -65,16 +66,18 @@ class _NotificationsViewState extends State<NotificationsView> {
 class _AnnouncementTile extends StatelessWidget {
   const _AnnouncementTile({
     required this.announcement,
+    required this.isRead,
     required this.onTap,
   });
 
   final Announcement announcement;
+  final bool isRead;
   final VoidCallback onTap;
 
   @override
   Widget build(BuildContext context) {
     return Card(
-      color: announcement.isRead ? moodleWhite : moodleSurface,
+      color: isRead ? moodleWhite : moodleSurface,
       elevation: 0,
       margin: const EdgeInsets.only(bottom: 12),
       shape: RoundedRectangleBorder(
@@ -97,13 +100,11 @@ class _AnnouncementTile extends StatelessWidget {
                       style: TextStyle(
                         fontSize: 16,
                         fontWeight: FontWeight.bold,
-                        color: announcement.isRead
-                            ? moodleTextMuted
-                            : moodlePurple,
+                        color: isRead ? moodleTextMuted : moodlePurple,
                       ),
                     ),
                   ),
-                  if (!announcement.isRead)
+                  if (!isRead)
                     Container(
                       width: 8,
                       height: 8,
@@ -116,7 +117,7 @@ class _AnnouncementTile extends StatelessWidget {
               ),
               const SizedBox(height: 8),
               Text(
-                announcement.message,
+                announcement.body,
                 style: const TextStyle(fontSize: 14, color: moodleTextDark),
               ),
             ],

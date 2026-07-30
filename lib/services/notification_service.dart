@@ -9,7 +9,7 @@ class NotificationService {
 
   Future<int> getUnreadCount() async {
     final announcements = await getAnnouncements();
-    return announcements.where((announcement) => !announcement.isRead).length;
+    return announcements.length;
   }
 
   Future<void> markAsRead(String id) async {

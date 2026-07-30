@@ -6,20 +6,20 @@ class AssignmentTile extends StatelessWidget {
   const AssignmentTile({
     Key? key,
     required this.assignment,
+    this.courseCode,
   }) : super(key: key);
 
   final Assignment assignment;
+  final String? courseCode;
 
   Color get _statusColor {
     switch (assignment.status) {
-      case AssignmentStatus.notStarted:
+      case AssignmentStatus.notSubmitted:
         return moodleTextMuted;
-      case AssignmentStatus.inProgress:
-        return moodleBlue;
       case AssignmentStatus.submitted:
+        return moodleBlue;
+      case AssignmentStatus.graded:
         return const Color(0xFF2E7D32);
-      case AssignmentStatus.overdue:
-        return const Color(0xFFC62828);
     }
   }
 
@@ -42,22 +42,23 @@ class AssignmentTile extends StatelessWidget {
           children: [
             Row(
               children: [
-                Container(
-                  padding:
-                      const EdgeInsets.symmetric(horizontal: 8, vertical: 4),
-                  decoration: BoxDecoration(
-                    color: moodleGrayBg,
-                    borderRadius: BorderRadius.circular(4),
-                  ),
-                  child: Text(
-                    assignment.courseCode,
-                    style: const TextStyle(
-                      fontSize: 12,
-                      fontWeight: FontWeight.bold,
-                      color: moodlePurple,
+                if (courseCode != null)
+                  Container(
+                    padding:
+                        const EdgeInsets.symmetric(horizontal: 8, vertical: 4),
+                    decoration: BoxDecoration(
+                      color: moodleGrayBg,
+                      borderRadius: BorderRadius.circular(4),
+                    ),
+                    child: Text(
+                      courseCode!,
+                      style: const TextStyle(
+                        fontSize: 12,
+                        fontWeight: FontWeight.bold,
+                        color: moodlePurple,
+                      ),
                     ),
                   ),
-                ),
                 const Spacer(),
                 Container(
                   padding:
@@ -86,11 +87,6 @@ class AssignmentTile extends StatelessWidget {
                 color: moodleTextDark,
               ),
             ),
-            const SizedBox(height: 8),
-            Text(
-              assignment.description,
-              style: const TextStyle(fontSize: 14, color: moodleTextMuted),
-            ),
             const SizedBox(height: 12),
             Row(
               children: [
@@ -100,6 +96,17 @@ class AssignmentTile extends StatelessWidget {
                   'Due $dueLabel',
                   style: const TextStyle(fontSize: 13, color: moodleTextMuted),
                 ),
+                if (assignment.grade != null) ...[
+                  const Spacer(),
+                  Text(
+                    'Grade: ${assignment.grade}',
+                    style: const TextStyle(
+                      fontSize: 13,
+                      fontWeight: FontWeight.bold,
+                      color: moodlePurple,
+                    ),
+                  ),
+                ],
               ],
             ),
           ],

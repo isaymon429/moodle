@@ -1,4 +1,5 @@
 import 'package:flutter/material.dart';
+import 'package:moodle/models/course.dart';
 import 'package:moodle/views/assessments_view.dart';
 import 'package:moodle/views/calendar_view.dart';
 import 'package:moodle/views/course_details_view.dart';
@@ -30,14 +31,14 @@ class AppRoutes {
 
   static Route<dynamic>? onGenerateRoute(RouteSettings settings) {
     if (settings.name == courseDetails) {
-      final courseId = settings.arguments as String?;
-      if (courseId == null) {
+      final course = settings.arguments as Course?;
+      if (course == null) {
         return MaterialPageRoute(
           builder: (context) => const CoursesView(),
         );
       }
       return MaterialPageRoute(
-        builder: (context) => CourseDetailsView(courseId: courseId),
+        builder: (context) => CourseDetailsView(course: course),
         settings: settings,
       );
     }

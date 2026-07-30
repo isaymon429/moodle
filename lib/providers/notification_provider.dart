@@ -9,13 +9,16 @@ class NotificationProvider extends ChangeNotifier {
   final NotificationService _notificationService;
 
   List<Announcement> _announcements = [];
+  final Set<String> _readIds = {};
   bool _isLoading = false;
 
   List<Announcement> get announcements => List.unmodifiable(_announcements);
   bool get isLoading => _isLoading;
 
+  bool isRead(String id) => _readIds.contains(id);
+
   int get unreadCount =>
-      _announcements.where((announcement) => !announcement.isRead).length;
+      _announcements.where((a) => !_readIds.contains(a.id)).length;
 
   Future<void> loadAnnouncements() async {
     _isLoading = true;
@@ -28,19 +31,7 @@ class NotificationProvider extends ChangeNotifier {
   }
 
   void markAsRead(String id) {
-    _announcements = _announcements
-        .map(
-          (announcement) => announcement.id == id
-              ? Announcement(
-                  id: announcement.id,
-                  title: announcement.title,
-                  message: announcement.message,
-                  date: announcement.date,
-                  isRead: true,
-                )
-              : announcement,
-        )
-        .toList();
+    _readIds.add(id);
     notifyListeners();
   }
 }

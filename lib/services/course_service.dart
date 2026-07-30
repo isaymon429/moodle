@@ -25,7 +25,7 @@ class CourseService {
     return courses
         .where(
           (course) =>
-              course.title.toLowerCase().contains(lowerQuery) ||
+              course.name.toLowerCase().contains(lowerQuery) ||
               course.code.toLowerCase().contains(lowerQuery),
         )
         .toList();

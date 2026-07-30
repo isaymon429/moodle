@@ -1,35 +1,32 @@
 import 'package:flutter/material.dart';
 import 'package:moodle/constants.dart';
-import 'package:moodle/providers/auth_provider.dart';
-import 'package:moodle/providers/calendar_provider.dart';
-import 'package:moodle/providers/notification_provider.dart';
-import 'package:moodle/routes.dart';
+import 'package:moodle/data/dummy_data.dart';
+import 'package:moodle/models/assignment.dart';
+import 'package:moodle/models/announcement.dart';
 import 'package:moodle/widgets/app_bar_widget.dart';
+import 'package:moodle/widgets/course_card.dart';
 import 'package:moodle/widgets/nav_drawer.dart';
-import 'package:provider/provider.dart';
 
-class DashboardView extends StatefulWidget {
+class DashboardView extends StatelessWidget {
   const DashboardView({Key? key}) : super(key: key);
 
-  @override
-  State<DashboardView> createState() => _DashboardViewState();
-}
+  static const _pagePadding = EdgeInsets.all(16);
 
-class _DashboardViewState extends State<DashboardView> {
-  @override
-  void initState() {
-    super.initState();
-    WidgetsBinding.instance.addPostFrameCallback((_) {
-      context.read<NotificationProvider>().loadAnnouncements();
-      context.read<CalendarProvider>().loadEvents();
-    });
+  List<Assignment> get _upcomingAssignments {
+    final sorted = List<Assignment>.from(dummyAssignments)
+      ..sort((a, b) => a.dueDate.compareTo(b.dueDate));
+    return sorted.take(3).toList();
+  }
+
+  List<Announcement> get _recentAnnouncements {
+    final sorted = List<Announcement>.from(dummyAnnouncements)
+      ..sort((a, b) => b.date.compareTo(a.date));
+    return sorted.take(2).toList();
   }
 
   @override
   Widget build(BuildContext context) {
-    final notifications = context.watch<NotificationProvider>();
-    final calendar = context.watch<CalendarProvider>();
-    final user = context.watch<AuthProvider>().user;
+    final firstName = dummyUserProfile.fullName.split(' ').first;
 
     return Scaffold(
       appBar: const MoodleAppBar(title: 'Dashboard'),
@@ -37,118 +34,80 @@ class _DashboardViewState extends State<DashboardView> {
       body: Container(
         color: moodleBg,
         child: SingleChildScrollView(
-          padding: const EdgeInsets.all(24),
+          padding: _pagePadding,
           child: Column(
-            crossAxisAlignment: CrossAxisAlignment.stretch,
+            crossAxisAlignment: CrossAxisAlignment.start,
             children: [
-              const Text(
-                'Dashboard',
-                style: TextStyle(
-                  fontSize: 28,
+              Text(
+                'Welcome back, $firstName',
+                style: const TextStyle(
+                  fontSize: 24,
                   fontWeight: FontWeight.bold,
                   color: moodlePurple,
                 ),
               ),
-              const SizedBox(height: 8),
+              const SizedBox(height: 4),
               Text(
-                'Welcome back, ${user.fullName.split(' ').first}',
-                style: const TextStyle(fontSize: 16, color: moodleTextMuted),
+                dummyUserProfile.programme,
+                style: const TextStyle(fontSize: 14, color: moodleTextMuted),
               ),
               const SizedBox(height: 24),
-              _DashboardCard(
-                title: 'Announcements',
-                trailing: notifications.unreadCount > 0
-                    ? '${notifications.unreadCount} new'
-                    : null,
-                onTap: () {
-                  Navigator.pushNamed(context, AppRoutes.notifications);
-                },
-                child: notifications.isLoading
-                    ? const Center(child: CircularProgressIndicator())
-                    : Column(
-                        crossAxisAlignment: CrossAxisAlignment.start,
-                        children: notifications.announcements.take(2).map(
-                          (announcement) {
-                            return Padding(
-                              padding: const EdgeInsets.only(bottom: 12),
-                              child: Column(
-                                crossAxisAlignment: CrossAxisAlignment.start,
-                                children: [
-                                  Text(
-                                    announcement.title,
-                                    style: TextStyle(
-                                      fontSize: 15,
-                                      fontWeight: FontWeight.bold,
-                                      color: announcement.isRead
-                                          ? moodleTextMuted
-                                          : moodlePurple,
-                                    ),
-                                  ),
-                                  const SizedBox(height: 4),
-                                  Text(
-                                    announcement.message,
-                                    maxLines: 2,
-                                    overflow: TextOverflow.ellipsis,
-                                    style: const TextStyle(
-                                      fontSize: 14,
-                                      color: moodleTextMuted,
-                                    ),
-                                  ),
-                                ],
-                              ),
-                            );
-                          },
-                        ).toList(),
+              const _SectionTitle(title: 'My courses'),
+              const SizedBox(height: 12),
+              SizedBox(
+                height: 118,
+                child: ListView.separated(
+                  scrollDirection: Axis.horizontal,
+                  itemCount: dummyCourses.length,
+                  separatorBuilder: (_, __) => const SizedBox(width: 12),
+                  itemBuilder: (context, index) {
+                    return SizedBox(
+                      width: 260,
+                      child: CourseCard(
+                        course: dummyCourses[index],
+                        compact: true,
                       ),
+                    );
+                  },
+                ),
               ),
               const SizedBox(height: 24),
-              _DashboardCard(
-                title: 'Upcoming deadlines',
-                onTap: () {
-                  Navigator.pushNamed(context, AppRoutes.calendar);
-                },
-                child: calendar.isLoading
-                    ? const Center(child: CircularProgressIndicator())
-                    : Column(
-                        crossAxisAlignment: CrossAxisAlignment.start,
-                        children: calendar.events.take(3).map((event) {
-                          return Padding(
-                            padding: const EdgeInsets.only(bottom: 12),
-                            child: Row(
-                              children: [
-                                Container(
-                                  padding: const EdgeInsets.symmetric(
-                                    horizontal: 8,
-                                    vertical: 4,
-                                  ),
-                                  decoration: BoxDecoration(
-                                    color: moodleGrayBg,
-                                    borderRadius: BorderRadius.circular(4),
-                                  ),
-                                  child: Text(
-                                    event.courseCode,
-                                    style: const TextStyle(
-                                      fontSize: 12,
-                                      fontWeight: FontWeight.bold,
-                                      color: moodlePurple,
-                                    ),
-                                  ),
-                                ),
-                                const SizedBox(width: 12),
-                                Expanded(
-                                  child: Text(
-                                    event.title,
-                                    style: const TextStyle(
-                                      fontSize: 14,
-                                      color: moodleTextDark,
-                                    ),
-                                  ),
-                                ),
-                              ],
-                            ),
-                          );
-                        }).toList(),
-                      ),
+              const _SectionTitle(title: 'Upcoming deadlines'),
+              const SizedBox(height: 12),
+              Card(
+                color: moodleWhite,
+                elevation: 0,
+                shape: RoundedRectangleBorder(
+                  side: const BorderSide(color: moodleBorder),
+                  borderRadius: BorderRadius.circular(8),
+                ),
+                child: Padding(
+                  padding: _pagePadding,
+                  child: Column(
+                    children: _upcomingAssignments.map((assignment) {
+                      return _DeadlineRow(assignment: assignment);
+                    }).toList(),
+                  ),
+                ),
+              ),
+              const SizedBox(height: 24),
+              const _SectionTitle(title: 'Recent announcements'),
+              const SizedBox(height: 12),
+              Card(
+                color: moodleWhite,
+                elevation: 0,
+                shape: RoundedRectangleBorder(
+                  side: const BorderSide(color: moodleBorder),
+                  borderRadius: BorderRadius.circular(8),
+                ),
+                child: Padding(
+                  padding: _pagePadding,
+                  child: Column(
+                    children: _recentAnnouncements.map((announcement) {
+                      return _AnnouncementRow(announcement: announcement);
+                    }).toList(),
+                  ),
+                ),
               ),
             ],
           ),
@@ -158,63 +117,117 @@ class _DashboardViewState extends State<DashboardView> {
   }
 }
 
-class _DashboardCard extends StatelessWidget {
-  const _DashboardCard({
-    required this.title,
-    required this.child,
-    this.trailing,
-    this.onTap,
-  });
+class _SectionTitle extends StatelessWidget {
+  const _SectionTitle({required this.title});
 
   final String title;
-  final Widget child;
-  final String? trailing;
-  final VoidCallback? onTap;
 
   @override
   Widget build(BuildContext context) {
-    return Card(
-      color: moodleWhite,
-      elevation: 0,
-      shape: RoundedRectangleBorder(
-        side: const BorderSide(color: moodleBorder),
-        borderRadius: BorderRadius.circular(8),
+    return Text(
+      title,
+      style: const TextStyle(
+        fontSize: 18,
+        fontWeight: FontWeight.bold,
+        color: moodlePurple,
       ),
-      child: InkWell(
-        borderRadius: BorderRadius.circular(8),
-        onTap: onTap,
-        child: Padding(
-          padding: const EdgeInsets.all(24),
-          child: Column(
-            crossAxisAlignment: CrossAxisAlignment.start,
-            children: [
-              Row(
-                children: [
-                  Text(
-                    title,
-                    style: const TextStyle(
-                      fontSize: 18,
-                      fontWeight: FontWeight.bold,
-                      color: moodlePurple,
-                    ),
-                  ),
-                  const Spacer(),
-                  if (trailing != null)
-                    Text(
-                      trailing!,
-                      style: const TextStyle(
-                        fontSize: 13,
-                        fontWeight: FontWeight.bold,
-                        color: moodleBlue,
-                      ),
-                    ),
-                ],
-              ),
-              const SizedBox(height: 12),
-              child,
-            ],
+    );
+  }
+}
+
+class _DeadlineRow extends StatelessWidget {
+  const _DeadlineRow({required this.assignment});
+
+  final Assignment assignment;
+
+  String? get _courseCode {
+    try {
+      return dummyCourses
+          .firstWhere((course) => course.id == assignment.courseId)
+          .code;
+    } catch (_) {
+      return null;
+    }
+  }
+
+  @override
+  Widget build(BuildContext context) {
+    return Padding(
+      padding: const EdgeInsets.only(bottom: 12),
+      child: Row(
+        crossAxisAlignment: CrossAxisAlignment.start,
+        children: [
+          Container(
+            padding: const EdgeInsets.all(8),
+            decoration: BoxDecoration(
+              color: moodleGrayBg,
+              borderRadius: BorderRadius.circular(8),
+            ),
+            child: const Icon(Icons.event, size: 20, color: moodlePurple),
           ),
-        ),
+          const SizedBox(width: 12),
+          Expanded(
+            child: Column(
+              crossAxisAlignment: CrossAxisAlignment.start,
+              children: [
+                Text(
+                  assignment.title,
+                  style: const TextStyle(
+                    fontSize: 15,
+                    fontWeight: FontWeight.bold,
+                    color: moodleTextDark,
+                  ),
+                ),
+                const SizedBox(height: 4),
+                Text(
+                  '${_courseCode ?? 'Module'} · Due ${_formatDate(assignment.dueDate)}',
+                  style: const TextStyle(fontSize: 13, color: moodleTextMuted),
+                ),
+              ],
+            ),
+          ),
+        ],
+      ),
+    );
+  }
+
+  String _formatDate(DateTime date) {
+    const months = [
+      'Jan', 'Feb', 'Mar', 'Apr', 'May', 'Jun',
+      'Jul', 'Aug', 'Sep', 'Oct', 'Nov', 'Dec',
+    ];
+    return '${date.day} ${months[date.month - 1]} ${date.year}';
+  }
+}
+
+class _AnnouncementRow extends StatelessWidget {
+  const _AnnouncementRow({required this.announcement});
+
+  final Announcement announcement;
+
+  @override
+  Widget build(BuildContext context) {
+    return Padding(
+      padding: const EdgeInsets.only(bottom: 12),
+      child: Column(
+        crossAxisAlignment: CrossAxisAlignment.start,
+        children: [
+          Text(
+            announcement.title,
+            style: const TextStyle(
+              fontSize: 15,
+              fontWeight: FontWeight.bold,
+              color: moodlePurple,
+            ),
+          ),
+          const SizedBox(height: 4),
+          Text(
+            announcement.body,
+            maxLines: 2,
+            overflow: TextOverflow.ellipsis,
+            style: const TextStyle(fontSize: 14, color: moodleTextMuted),
+          ),
+        ],
       ),
     );
   }

@@ -1,120 +1,109 @@
 import 'package:flutter/material.dart';
 import 'package:moodle/constants.dart';
-import 'package:moodle/providers/auth_provider.dart';
-import 'package:moodle/widgets/app_bar_widget.dart';
-import 'package:moodle/widgets/nav_drawer.dart';
-import 'package:provider/provider.dart';
+import 'package:moodle/data/dummy_data.dart';
 
 class ProfileView extends StatelessWidget {
   const ProfileView({Key? key}) : super(key: key);
 
   @override
   Widget build(BuildContext context) {
-    final user = context.watch<AuthProvider>().user;
+    final user = dummyUserProfile;
 
     return Scaffold(
-      appBar: const MoodleAppBar(title: 'Profile'),
-      drawer: const NavDrawer(),
-      body: Container(
-        color: moodleBg,
-        child: SingleChildScrollView(
-          padding: const EdgeInsets.all(24),
-          child: Column(
-            crossAxisAlignment: CrossAxisAlignment.start,
-            children: [
-              const Text(
-                'Profile',
-                style: TextStyle(
-                  fontSize: 28,
-                  fontWeight: FontWeight.bold,
-                  color: moodlePurple,
-                ),
+      backgroundColor: moodleBg,
+      body: ListView(
+        padding: const EdgeInsets.all(16),
+        children: [
+          const SizedBox(height: 16),
+          Center(
+            child: CircleAvatar(
+              radius: 48,
+              backgroundColor: moodleGrayBg,
+              child: Icon(Icons.person, size: 52, color: moodlePurple),
+            ),
+          ),
+          const SizedBox(height: 16),
+          Center(
+            child: Text(
+              user.fullName,
+              style: const TextStyle(
+                fontSize: 22,
+                fontWeight: FontWeight.bold,
+                color: moodlePurple,
               ),
-              const SizedBox(height: 24),
-              Card(
-                color: moodleWhite,
-                elevation: 0,
-                shape: RoundedRectangleBorder(
-                  side: const BorderSide(color: moodleBorder),
-                  borderRadius: BorderRadius.circular(8),
+              textAlign: TextAlign.center,
+            ),
+          ),
+          const SizedBox(height: 24),
+          Card(
+            color: moodleWhite,
+            elevation: 0,
+            shape: RoundedRectangleBorder(
+              side: const BorderSide(color: moodleBorder),
+              borderRadius: BorderRadius.circular(8),
+            ),
+            child: Column(
+              children: [
+                ListTile(
+                  leading: const Icon(Icons.badge_outlined, color: moodlePurple),
+                  title: const Text('UP number'),
+                  subtitle: Text(user.upNumber),
                 ),
-                child: Padding(
-                  padding: const EdgeInsets.all(24),
-                  child: Column(
-                    children: [
-                      CircleAvatar(
-                        radius: 40,
+                const Divider(height: 1),
+                ListTile(
+                  leading: const Icon(Icons.school_outlined, color: moodlePurple),
+                  title: const Text('Programme'),
+                  subtitle: Text(user.programme),
+                ),
+                const Divider(height: 1),
+                ListTile(
+                  leading: const Icon(Icons.email_outlined, color: moodlePurple),
+                  title: const Text('Email'),
+                  subtitle: Text(user.email),
+                ),
+              ],
+            ),
+          ),
+          const SizedBox(height: 24),
+          const Text(
+            'Enrolled modules',
+            style: TextStyle(
+              fontSize: 18,
+              fontWeight: FontWeight.bold,
+              color: moodlePurple,
+            ),
+          ),
+          const SizedBox(height: 8),
+          Card(
+            color: moodleWhite,
+            elevation: 0,
+            shape: RoundedRectangleBorder(
+              side: const BorderSide(color: moodleBorder),
+              borderRadius: BorderRadius.circular(8),
+            ),
+            child: Column(
+              children: dummyCourses.map((course) {
+                return Column(
+                  children: [
+                    ListTile(
+                      leading: CircleAvatar(
                         backgroundColor: moodleGrayBg,
                         foregroundColor: moodlePurple,
                         child: Text(
-                          user.initials,
+                          course.code,
                           style: const TextStyle(
+                            fontSize: 11,
                             fontWeight: FontWeight.bold,
-                            fontSize: 24,
                           ),
                         ),
                       ),
-                      const SizedBox(height: 16),
-                      Text(
-                        user.fullName,
-                        style: const TextStyle(
-                          fontSize: 20,
-                          fontWeight: FontWeight.bold,
-                          color: moodleTextDark,
-                        ),
-                      ),
-                      const SizedBox(height: 8),
-                      Text(
-                        user.email,
-                        style: const TextStyle(
-                          fontSize: 14,
-                          color: moodleTextMuted,
-                        ),
-                      ),
-                      const SizedBox(height: 24),
-                      _ProfileRow(label: 'UP number', value: user.upNumber),
-                      _ProfileRow(label: 'Programme', value: user.programme),
-                      _ProfileRow(label: 'Cohort', value: user.cohort),
-                    ],
-                  ),
-                ),
-              ),
-            ],
-          ),
-        ),
-      ),
-    );
-  }
-}
-
-class _ProfileRow extends StatelessWidget {
-  const _ProfileRow({required this.label, required this.value});
-
-  final String label;
-  final String value;
-
-  @override
-  Widget build(BuildContext context) {
-    return Padding(
-      padding: const EdgeInsets.only(bottom: 12),
-      child: Row(
-        crossAxisAlignment: CrossAxisAlignment.start,
-        children: [
-          SizedBox(
-            width: 100,
-            child: Text(
-              label,
-              style: const TextStyle(
-                fontSize: 14,
-                fontWeight: FontWeight.bold,
-                color: moodleTextMuted,
-              ),
-            ),
-          ),
-          Expanded(
-            child: Text(
-              value,
-              style: const TextStyle(fontSize: 14, color: moodleTextDark),
+                      title: Text(course.name),
+                      subtitle: Text('${course.instructor} · ${course.term}'),
+                    ),
+                    if (course != dummyCourses.last) const Divider(height: 1),
+                  ],
+                );
+              }).toList(),
             ),
           ),
         ],
