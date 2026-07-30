@@ -1,31 +1,43 @@
 import 'package:flutter/material.dart';
+import 'package:go_router/go_router.dart';
 import 'package:moodle/constants.dart';
 import 'package:moodle/data/dummy_data.dart';
 import 'package:moodle/models/assignment.dart';
 import 'package:moodle/models/announcement.dart';
+import 'package:moodle/providers/assignment_provider.dart';
+import 'package:moodle/providers/course_provider.dart';
+import 'package:moodle/providers/notification_provider.dart';
+import 'package:moodle/routes.dart';
 import 'package:moodle/widgets/app_bar_widget.dart';
 import 'package:moodle/widgets/course_card.dart';
 import 'package:moodle/widgets/nav_drawer.dart';
+import 'package:provider/provider.dart';
 
-class DashboardView extends StatelessWidget {
+class DashboardView extends StatefulWidget {
   const DashboardView({Key? key}) : super(key: key);
 
+  @override
+  State<DashboardView> createState() => _DashboardViewState();
+}
+
+class _DashboardViewState extends State<DashboardView> {
   static const _pagePadding = EdgeInsets.all(16);
 
-  List<Assignment> get _upcomingAssignments {
-    final sorted = List<Assignment>.from(dummyAssignments)
-      ..sort((a, b) => a.dueDate.compareTo(b.dueDate));
-    return sorted.take(3).toList();
-  }
-
-  List<Announcement> get _recentAnnouncements {
-    final sorted = List<Announcement>.from(dummyAnnouncements)
-      ..sort((a, b) => b.date.compareTo(a.date));
-    return sorted.take(2).toList();
+  @override
+  void initState() {
+    super.initState();
+    WidgetsBinding.instance.addPostFrameCallback((_) {
+      context.read<CourseProvider>().loadCourses();
+      context.read<AssignmentProvider>().loadAssignments();
+      context.read<NotificationProvider>().loadAnnouncements();
+    });
   }
 
   @override
   Widget build(BuildContext context) {
+    final courses = context.watch<CourseProvider>().courses;
+    final assignments = context.watch<AssignmentProvider>().upcomingAssignments;
+    final announcements = context.watch<NotificationProvider>().recentAnnouncements;
     final firstName = dummyUserProfile.fullName.split(' ').first;
 
     return Scaffold(
@@ -52,19 +64,22 @@ class DashboardView extends StatelessWidget {
                 style: const TextStyle(fontSize: 14, color: moodleTextMuted),
               ),
               const SizedBox(height: 24),
-              const _SectionTitle(title: 'My courses'),
+              _SectionHeader(
+                title: 'My courses',
+                onViewAll: () => context.go(AppRoutes.courses),
+              ),
               const SizedBox(height: 12),
               SizedBox(
                 height: 118,
                 child: ListView.separated(
                   scrollDirection: Axis.horizontal,
-                  itemCount: dummyCourses.length,
+                  itemCount: courses.length,
                   separatorBuilder: (_, __) => const SizedBox(width: 12),
                   itemBuilder: (context, index) {
                     return SizedBox(
                       width: 260,
                       child: CourseCard(
-                        course: dummyCourses[index],
+                        course: courses[index],
                         compact: true,
                       ),
                     );
@@ -72,7 +87,10 @@ class DashboardView extends StatelessWidget {
                 ),
               ),
               const SizedBox(height: 24),
-              const _SectionTitle(title: 'Upcoming deadlines'),
+              _SectionHeader(
+                title: 'Upcoming deadlines',
+                onViewAll: () => context.go(AppRoutes.assessments),
+              ),
               const SizedBox(height: 12),
               Card(
                 color: moodleWhite,
@@ -84,14 +102,17 @@ class DashboardView extends StatelessWidget {
                 child: Padding(
                   padding: _pagePadding,
                   child: Column(
-                    children: _upcomingAssignments.map((assignment) {
+                    children: assignments.take(3).map((assignment) {
                       return _DeadlineRow(assignment: assignment);
                     }).toList(),
                   ),
                 ),
               ),
               const SizedBox(height: 24),
-              const _SectionTitle(title: 'Recent announcements'),
+              _SectionHeader(
+                title: 'Recent announcements',
+                onViewAll: () => context.go(AppRoutes.notifications),
+              ),
               const SizedBox(height: 12),
               Card(
                 color: moodleWhite,
@@ -103,7 +124,7 @@ class DashboardView extends StatelessWidget {
                 child: Padding(
                   padding: _pagePadding,
                   child: Column(
-                    children: _recentAnnouncements.map((announcement) {
+                    children: announcements.take(2).map((announcement) {
                       return _AnnouncementRow(announcement: announcement);
                     }).toList(),
                   ),
@@ -117,20 +138,36 @@ class DashboardView extends StatelessWidget {
   }
 }
 
-class _SectionTitle extends StatelessWidget {
-  const _SectionTitle({required this.title});
+class _SectionHeader extends StatelessWidget {
+  const _SectionHeader({
+    required this.title,
+    required this.onViewAll,
+  });
 
   final String title;
+  final VoidCallback onViewAll;
 
   @override
   Widget build(BuildContext context) {
-    return Text(
-      title,
-      style: const TextStyle(
-        fontSize: 18,
-        fontWeight: FontWeight.bold,
-        color: moodlePurple,
-      ),
+    return Row(
+      children: [
+        Text(
+          title,
+          style: const TextStyle(
+            fontSize: 18,
+            fontWeight: FontWeight.bold,
+            color: moodlePurple,
+          ),
+        ),
+        const Spacer(),
+        TextButton(
+          onPressed: onViewAll,
+          child: const Text(
+            'View all',
+            style: TextStyle(color: moodleBlue, fontWeight: FontWeight.bold),
+          ),
+        ),
+      ],
     );
   }
 }

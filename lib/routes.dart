@@ -1,5 +1,5 @@
 import 'package:flutter/material.dart';
-import 'package:moodle/models/course.dart';
+import 'package:go_router/go_router.dart';
 import 'package:moodle/views/assessments_view.dart';
 import 'package:moodle/views/calendar_view.dart';
 import 'package:moodle/views/course_details_view.dart';
@@ -9,39 +9,58 @@ import 'package:moodle/views/login_view.dart';
 import 'package:moodle/views/notifications_view.dart';
 import 'package:moodle/views/profile_view.dart';
 
+/// Named route paths used across the app (drawer, cards, buttons).
 class AppRoutes {
-  static const dashboard = '/';
+  static const login = '/login';
+  static const dashboard = '/dashboard';
   static const courses = '/courses';
-  static const courseDetails = '/courses/details';
-  static const profile = '/profile';
   static const assessments = '/assessments';
   static const calendar = '/calendar';
-  static const login = '/login';
+  static const profile = '/profile';
   static const notifications = '/notifications';
 
-  static Map<String, WidgetBuilder> get routes => {
-        dashboard: (context) => const DashboardView(),
-        courses: (context) => const CoursesView(),
-        profile: (context) => const ProfileView(),
-        assessments: (context) => const AssessmentsView(),
-        calendar: (context) => const CalendarView(),
-        login: (context) => const LoginView(),
-        notifications: (context) => const NotificationsView(),
-      };
+  static String courseDetails(String id) => '/courses/$id';
+}
 
-  static Route<dynamic>? onGenerateRoute(RouteSettings settings) {
-    if (settings.name == courseDetails) {
-      final course = settings.arguments as Course?;
-      if (course == null) {
-        return MaterialPageRoute(
-          builder: (context) => const CoursesView(),
-        );
-      }
-      return MaterialPageRoute(
-        builder: (context) => CourseDetailsView(course: course),
-        settings: settings,
-      );
-    }
-    return null;
-  }
+GoRouter createRouter() {
+  return GoRouter(
+    initialLocation: AppRoutes.login,
+    routes: [
+      GoRoute(
+        path: AppRoutes.login,
+        builder: (context, state) => const LoginView(),
+      ),
+      GoRoute(
+        path: AppRoutes.dashboard,
+        builder: (context, state) => const DashboardView(),
+      ),
+      GoRoute(
+        path: AppRoutes.courses,
+        builder: (context, state) => const CoursesView(),
+      ),
+      GoRoute(
+        path: '/courses/:id',
+        builder: (context, state) {
+          final id = state.pathParameters['id']!;
+          return CourseDetailsView(courseId: id);
+        },
+      ),
+      GoRoute(
+        path: AppRoutes.assessments,
+        builder: (context, state) => const AssessmentsView(),
+      ),
+      GoRoute(
+        path: AppRoutes.calendar,
+        builder: (context, state) => const CalendarView(),
+      ),
+      GoRoute(
+        path: AppRoutes.profile,
+        builder: (context, state) => const ProfileView(),
+      ),
+      GoRoute(
+        path: AppRoutes.notifications,
+        builder: (context, state) => const NotificationsView(),
+      ),
+    ],
+  );
 }

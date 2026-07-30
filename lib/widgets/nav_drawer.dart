@@ -1,17 +1,28 @@
 import 'package:flutter/material.dart';
+import 'package:go_router/go_router.dart';
 import 'package:moodle/constants.dart';
 import 'package:moodle/data/dummy_data.dart';
+import 'package:moodle/routes.dart';
 
 class NavDrawer extends StatelessWidget {
   const NavDrawer({Key? key}) : super(key: key);
 
-  void _closeDrawer(BuildContext context) {
+  void _goTo(BuildContext context, String path) {
     Navigator.pop(context);
+    context.go(path);
+  }
+
+  bool _isSelected(String currentPath, String route) {
+    if (route == AppRoutes.courses) {
+      return currentPath == AppRoutes.courses ||
+          currentPath.startsWith('${AppRoutes.courses}/');
+    }
+    return currentPath == route;
   }
 
   @override
   Widget build(BuildContext context) {
-    final currentRoute = ModalRoute.of(context)?.settings.name ?? '/';
+    final currentPath = GoRouterState.of(context).uri.path;
 
     return Drawer(
       backgroundColor: moodlePurple,
@@ -27,15 +38,15 @@ class NavDrawer extends StatelessWidget {
                 crossAxisAlignment: CrossAxisAlignment.start,
                 mainAxisAlignment: MainAxisAlignment.end,
                 children: [
-                  CircleAvatar(
+                  const CircleAvatar(
                     radius: 26,
                     backgroundColor: moodleWhite,
                     child: Icon(Icons.person, size: 30, color: moodlePurple),
                   ),
-                  SizedBox(height: 10),
+                  const SizedBox(height: 10),
                   Text(
                     dummyUserProfile.fullName,
-                    style: TextStyle(
+                    style: const TextStyle(
                       color: moodleWhite,
                       fontWeight: FontWeight.bold,
                       fontSize: 16,
@@ -43,7 +54,7 @@ class NavDrawer extends StatelessWidget {
                   ),
                   Text(
                     dummyUserProfile.email,
-                    style: TextStyle(
+                    style: const TextStyle(
                       color: Colors.white70,
                       fontSize: 12,
                     ),
@@ -54,45 +65,45 @@ class NavDrawer extends StatelessWidget {
             _DrawerItem(
               icon: Icons.dashboard_outlined,
               label: 'Dashboard',
-              selected: currentRoute == '/',
-              onTap: () => _closeDrawer(context),
+              selected: _isSelected(currentPath, AppRoutes.dashboard),
+              onTap: () => _goTo(context, AppRoutes.dashboard),
             ),
             _DrawerItem(
               icon: Icons.school_outlined,
               label: 'Courses',
-              selected: currentRoute == '/courses',
-              onTap: () => _closeDrawer(context),
+              selected: _isSelected(currentPath, AppRoutes.courses),
+              onTap: () => _goTo(context, AppRoutes.courses),
             ),
             _DrawerItem(
               icon: Icons.assignment_outlined,
               label: 'Assessments',
-              selected: currentRoute == '/assessments',
-              onTap: () => _closeDrawer(context),
+              selected: _isSelected(currentPath, AppRoutes.assessments),
+              onTap: () => _goTo(context, AppRoutes.assessments),
             ),
             _DrawerItem(
               icon: Icons.calendar_month_outlined,
               label: 'Calendar',
-              selected: currentRoute == '/calendar',
-              onTap: () => _closeDrawer(context),
+              selected: _isSelected(currentPath, AppRoutes.calendar),
+              onTap: () => _goTo(context, AppRoutes.calendar),
             ),
             _DrawerItem(
               icon: Icons.person_outline,
               label: 'Profile',
-              selected: currentRoute == '/profile',
-              onTap: () => _closeDrawer(context),
+              selected: _isSelected(currentPath, AppRoutes.profile),
+              onTap: () => _goTo(context, AppRoutes.profile),
             ),
             _DrawerItem(
               icon: Icons.notifications_outlined,
               label: 'Notifications',
-              selected: currentRoute == '/notifications',
-              onTap: () => _closeDrawer(context),
+              selected: _isSelected(currentPath, AppRoutes.notifications),
+              onTap: () => _goTo(context, AppRoutes.notifications),
             ),
             const Divider(color: Colors.white24),
             _DrawerItem(
               icon: Icons.logout,
               label: 'Logout',
               selected: false,
-              onTap: () => _closeDrawer(context),
+              onTap: () => _goTo(context, AppRoutes.login),
             ),
           ],
         ),

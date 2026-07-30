@@ -3,6 +3,9 @@ import 'package:moodle/constants.dart';
 import 'package:moodle/data/dummy_data.dart';
 import 'package:moodle/models/calendar_event.dart';
 
+import 'package:moodle/widgets/app_bar_widget.dart';
+import 'package:moodle/widgets/nav_drawer.dart';
+
 class CalendarView extends StatelessWidget {
   const CalendarView({Key? key}) : super(key: key);
 
@@ -43,6 +46,8 @@ class CalendarView extends StatelessWidget {
     }).toList();
 
     return Scaffold(
+      appBar: const MoodleAppBar(title: 'Calendar'),
+      drawer: const NavDrawer(),
       backgroundColor: moodleBg,
       body: ListView(
         padding: const EdgeInsets.all(16),

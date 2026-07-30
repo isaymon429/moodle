@@ -1,26 +1,18 @@
 import 'package:flutter/foundation.dart';
-import 'package:moodle/models/assignment.dart';
 import 'package:moodle/models/course.dart';
-import 'package:moodle/services/auth_service.dart';
 import 'package:moodle/services/course_service.dart';
 
 class CourseProvider extends ChangeNotifier {
-  CourseProvider({
-    CourseService? courseService,
-    AuthService? authService,
-  })  : _courseService = courseService ?? CourseService(),
-        _authService = authService ?? AuthService();
+  CourseProvider({CourseService? courseService})
+      : _courseService = courseService ?? CourseService();
 
   final CourseService _courseService;
-  final AuthService _authService;
 
   List<Course> _courses = [];
-  List<Assignment> _assignments = [];
   String _searchQuery = '';
   bool _isLoading = false;
 
   List<Course> get courses => List.unmodifiable(_filteredCourses());
-  List<Assignment> get assignments => List.unmodifiable(_assignments);
   String get searchQuery => _searchQuery;
   bool get isLoading => _isLoading;
 
@@ -43,7 +35,6 @@ class CourseProvider extends ChangeNotifier {
     notifyListeners();
 
     _courses = await _courseService.getCourses();
-    _assignments = await _authService.getAssignmentsForCurrentUser();
 
     _isLoading = false;
     notifyListeners();

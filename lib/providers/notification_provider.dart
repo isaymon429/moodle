@@ -1,12 +1,12 @@
 import 'package:flutter/foundation.dart';
 import 'package:moodle/models/announcement.dart';
-import 'package:moodle/services/notification_service.dart';
+import 'package:moodle/services/announcement_service.dart';
 
 class NotificationProvider extends ChangeNotifier {
-  NotificationProvider({NotificationService? notificationService})
-      : _notificationService = notificationService ?? NotificationService();
+  NotificationProvider({AnnouncementService? announcementService})
+      : _announcementService = announcementService ?? AnnouncementService();
 
-  final NotificationService _notificationService;
+  final AnnouncementService _announcementService;
 
   List<Announcement> _announcements = [];
   final Set<String> _readIds = {};
@@ -20,11 +20,17 @@ class NotificationProvider extends ChangeNotifier {
   int get unreadCount =>
       _announcements.where((a) => !_readIds.contains(a.id)).length;
 
+  List<Announcement> get recentAnnouncements {
+    final sorted = List<Announcement>.from(_announcements)
+      ..sort((a, b) => b.date.compareTo(a.date));
+    return sorted;
+  }
+
   Future<void> loadAnnouncements() async {
     _isLoading = true;
     notifyListeners();
 
-    _announcements = await _notificationService.getAnnouncements();
+    _announcements = await _announcementService.getAnnouncements();
 
     _isLoading = false;
     notifyListeners();

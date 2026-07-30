@@ -1,4 +1,5 @@
 import 'package:flutter/material.dart';
+import 'package:go_router/go_router.dart';
 import 'package:moodle/constants.dart';
 import 'package:moodle/models/course.dart';
 import 'package:moodle/routes.dart';
@@ -25,11 +26,7 @@ class CourseCard extends StatelessWidget {
       onTap!();
       return;
     }
-    Navigator.pushNamed(
-      context,
-      AppRoutes.courseDetails,
-      arguments: course,
-    );
+    context.push(AppRoutes.courseDetails(course.id));
   }
 
   @override

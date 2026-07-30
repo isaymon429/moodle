@@ -1,8 +1,7 @@
 import 'package:moodle/data/dummy_data.dart';
-import 'package:moodle/models/assignment.dart';
 
 class AuthService {
-  bool _isLoggedIn = true;
+  bool _isLoggedIn = false;
 
   bool get isLoggedIn => _isLoggedIn;
 
@@ -18,10 +17,5 @@ class AuthService {
   Future<void> signOut() async {
     await Future<void>.delayed(const Duration(milliseconds: 100));
     _isLoggedIn = false;
-  }
-
-  Future<List<Assignment>> getAssignmentsForCurrentUser() async {
-    await Future<void>.delayed(const Duration(milliseconds: 100));
-    return List.unmodifiable(dummyAssignments);
   }
 }

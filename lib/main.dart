@@ -1,7 +1,7 @@
 import 'package:flutter/material.dart';
+import 'package:go_router/go_router.dart';
 import 'package:moodle/constants.dart';
-import 'package:moodle/providers/auth_provider.dart';
-import 'package:moodle/providers/calendar_provider.dart';
+import 'package:moodle/providers/assignment_provider.dart';
 import 'package:moodle/providers/course_provider.dart';
 import 'package:moodle/providers/notification_provider.dart';
 import 'package:moodle/routes.dart';
@@ -11,19 +11,25 @@ void main() {
   runApp(const MoodleApp());
 }
 
-class MoodleApp extends StatelessWidget {
+class MoodleApp extends StatefulWidget {
   const MoodleApp({Key? key}) : super(key: key);
+
+  @override
+  State<MoodleApp> createState() => _MoodleAppState();
+}
+
+class _MoodleAppState extends State<MoodleApp> {
+  late final GoRouter _router = createRouter();
 
   @override
   Widget build(BuildContext context) {
     return MultiProvider(
       providers: [
-        ChangeNotifierProvider(create: (_) => AuthProvider()),
         ChangeNotifierProvider(create: (_) => CourseProvider()),
-        ChangeNotifierProvider(create: (_) => CalendarProvider()),
+        ChangeNotifierProvider(create: (_) => AssignmentProvider()),
         ChangeNotifierProvider(create: (_) => NotificationProvider()),
       ],
-      child: MaterialApp(
+      child: MaterialApp.router(
         title: 'Moodle',
         theme: ThemeData(
           useMaterial3: true,
@@ -34,9 +40,7 @@ class MoodleApp extends StatelessWidget {
             surface: moodleSurface,
           ),
         ),
-        initialRoute: AppRoutes.dashboard,
-        routes: AppRoutes.routes,
-        onGenerateRoute: AppRoutes.onGenerateRoute,
+        routerConfig: _router,
         debugShowCheckedModeBanner: false,
       ),
     );
