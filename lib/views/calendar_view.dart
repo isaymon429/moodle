@@ -2,48 +2,55 @@ import 'package:flutter/material.dart';
 import 'package:moodle/constants.dart';
 import 'package:moodle/data/dummy_data.dart';
 import 'package:moodle/models/calendar_event.dart';
-
 import 'package:moodle/widgets/app_bar_widget.dart';
 import 'package:moodle/widgets/nav_drawer.dart';
+import 'package:table_calendar/table_calendar.dart';
 
-class CalendarView extends StatelessWidget {
+class CalendarView extends StatefulWidget {
   const CalendarView({Key? key}) : super(key: key);
 
-  Map<DateTime, List<CalendarEvent>> _groupByDate(List<CalendarEvent> events) {
-    final map = <DateTime, List<CalendarEvent>>{};
-    for (final event in events) {
-      final day = DateTime(event.date.year, event.date.month, event.date.day);
-      map.putIfAbsent(day, () => []).add(event);
-    }
-    return map;
+  @override
+  State<CalendarView> createState() => _CalendarViewState();
+}
+
+class _CalendarViewState extends State<CalendarView> {
+  DateTime _focusedDay = DateTime(2026, 8, 15);
+  DateTime? _selectedDay;
+  bool _upcomingOnly = true;
+
+  DateTime _dateOnly(DateTime date) {
+    return DateTime(date.year, date.month, date.day);
   }
 
-  String _formatDayHeading(DateTime day) {
-    const weekdays = ['Mon', 'Tue', 'Wed', 'Thu', 'Fri', 'Sat', 'Sun'];
-    const months = [
-      'Jan', 'Feb', 'Mar', 'Apr', 'May', 'Jun',
-      'Jul', 'Aug', 'Sep', 'Oct', 'Nov', 'Dec',
-    ];
-    return '${weekdays[day.weekday - 1]}, ${day.day} ${months[day.month - 1]} ${day.year}';
+  List<CalendarEvent> get _visibleEvents {
+    final now = _dateOnly(DateTime.now());
+    var events = List<CalendarEvent>.from(dummyCalendarEvents);
+
+    if (_upcomingOnly) {
+      events = events.where((event) {
+        return !_dateOnly(event.date).isBefore(now);
+      }).toList();
+    }
+
+    return events..sort((a, b) => a.date.compareTo(b.date));
+  }
+
+  List<CalendarEvent> _eventsForDay(DateTime day) {
+    final target = _dateOnly(day);
+    return _visibleEvents.where((event) {
+      return _dateOnly(event.date) == target;
+    }).toList();
+  }
+
+  Set<DateTime> get _markedDays {
+    return _visibleEvents.map((e) => _dateOnly(e.date)).toSet();
   }
 
   @override
   Widget build(BuildContext context) {
-    final now = DateTime.now();
-    final today = DateTime(now.year, now.month, now.day);
-
-    final sorted = List<CalendarEvent>.from(dummyCalendarEvents)
-      ..sort((a, b) => a.date.compareTo(b.date));
-
-    final upcoming = sorted.where((e) {
-      final d = DateTime(e.date.year, e.date.month, e.date.day);
-      return !d.isBefore(today);
-    }).toList();
-
-    final past = sorted.where((e) {
-      final d = DateTime(e.date.year, e.date.month, e.date.day);
-      return d.isBefore(today);
-    }).toList();
+    final listEvents = _selectedDay == null
+        ? _visibleEvents
+        : _eventsForDay(_selectedDay!);
 
     return Scaffold(
       appBar: const MoodleAppBar(title: 'Calendar'),
@@ -52,95 +59,163 @@ class CalendarView extends StatelessWidget {
       body: ListView(
         padding: const EdgeInsets.all(16),
         children: [
-          const SizedBox(height: 8),
-          const Text(
-            'Calendar',
-            style: TextStyle(
-              fontSize: 24,
-              fontWeight: FontWeight.bold,
-              color: moodlePurple,
+          Row(
+            children: [
+              const Text(
+                'Calendar',
+                style: TextStyle(
+                  fontSize: 24,
+                  fontWeight: FontWeight.bold,
+                  color: moodlePurple,
+                ),
+              ),
+              const Spacer(),
+              FilterChip(
+                label: Text(_upcomingOnly ? 'Upcoming only' : 'All events'),
+                selected: _upcomingOnly,
+                onSelected: (value) => setState(() => _upcomingOnly = value),
+                selectedColor: moodlePurple.withValues(alpha: 0.15),
+                checkmarkColor: moodlePurple,
+              ),
+            ],
+          ),
+          const SizedBox(height: 12),
+          Card(
+            color: moodleWhite,
+            elevation: 0,
+            shape: RoundedRectangleBorder(
+              side: const BorderSide(color: moodleBorder),
+              borderRadius: BorderRadius.circular(8),
+            ),
+            child: TableCalendar<CalendarEvent>(
+              firstDay: DateTime(2026, 1, 1),
+              lastDay: DateTime(2026, 12, 31),
+              focusedDay: _focusedDay,
+              selectedDayPredicate: (day) => isSameDay(_selectedDay, day),
+              eventLoader: _eventsForDay,
+              calendarStyle: CalendarStyle(
+                todayDecoration: BoxDecoration(
+                  color: moodleBlue.withValues(alpha: 0.3),
+                  shape: BoxShape.circle,
+                ),
+                selectedDecoration: const BoxDecoration(
+                  color: moodlePurple,
+                  shape: BoxShape.circle,
+                ),
+                markerDecoration: const BoxDecoration(
+                  color: moodlePurple,
+                  shape: BoxShape.circle,
+                ),
+              ),
+              headerStyle: const HeaderStyle(
+                formatButtonVisible: false,
+                titleCentered: true,
+              ),
+              onDaySelected: (selectedDay, focusedDay) {
+                setState(() {
+                  _selectedDay = _dateOnly(selectedDay);
+                  _focusedDay = focusedDay;
+                });
+              },
+              onPageChanged: (focusedDay) {
+                _focusedDay = focusedDay;
+              },
+              calendarBuilders: CalendarBuilders(
+                markerBuilder: (context, day, events) {
+                  if (!_markedDays.contains(_dateOnly(day))) {
+                    return null;
+                  }
+                  return Positioned(
+                    bottom: 1,
+                    child: Container(
+                      width: 6,
+                      height: 6,
+                      decoration: const BoxDecoration(
+                        color: moodlePurple,
+                        shape: BoxShape.circle,
+                      ),
+                    ),
+                  );
+                },
+              ),
             ),
           ),
           const SizedBox(height: 16),
-          const Text(
-            'Upcoming',
-            style: TextStyle(
-              fontSize: 18,
-              fontWeight: FontWeight.bold,
-              color: moodlePurple,
-            ),
+          Row(
+            children: [
+              Text(
+                _selectedDay == null
+                    ? 'All events'
+                    : 'Events on ${_formatDayHeading(_selectedDay!)}',
+                style: const TextStyle(
+                  fontSize: 18,
+                  fontWeight: FontWeight.bold,
+                  color: moodlePurple,
+                ),
+              ),
+              if (_selectedDay != null) ...[
+                const Spacer(),
+                TextButton(
+                  onPressed: () => setState(() => _selectedDay = null),
+                  child: const Text('Show all'),
+                ),
+              ],
+            ],
           ),
           const SizedBox(height: 8),
-          if (upcoming.isEmpty)
+          if (listEvents.isEmpty)
             const Text(
-              'No upcoming events.',
+              'No events for this selection.',
               style: TextStyle(color: moodleTextMuted),
             )
           else
-            ..._buildGroupedEvents(upcoming),
-          const SizedBox(height: 24),
-          const Text(
-            'Past',
-            style: TextStyle(
-              fontSize: 18,
-              fontWeight: FontWeight.bold,
-              color: moodlePurple,
+            ...listEvents.map(
+              (event) => Card(
+                color: moodleWhite,
+                elevation: 0,
+                margin: const EdgeInsets.only(bottom: 8),
+                shape: RoundedRectangleBorder(
+                  side: const BorderSide(color: moodleBorder),
+                  borderRadius: BorderRadius.circular(8),
+                ),
+                child: ListTile(
+                  leading: Icon(
+                    _iconForType(event.type),
+                    color: moodlePurple,
+                  ),
+                  title: Text(
+                    event.title,
+                    style: TextStyle(
+                      fontWeight: event.title.contains('Coursework Deadline')
+                          ? FontWeight.bold
+                          : FontWeight.normal,
+                      color: moodleTextDark,
+                    ),
+                  ),
+                  subtitle: Text(
+                    '${event.typeLabel} · ${_formatDayHeading(_dateOnly(event.date))}',
+                  ),
+                  trailing: Text(
+                    _formatTime(event.date),
+                    style: const TextStyle(
+                      fontSize: 12,
+                      color: moodleTextMuted,
+                    ),
+                  ),
+                ),
+              ),
             ),
-          ),
-          const SizedBox(height: 8),
-          if (past.isEmpty)
-            const Text(
-              'No past events.',
-              style: TextStyle(color: moodleTextMuted),
-            )
-          else
-            ..._buildGroupedEvents(past),
         ],
       ),
     );
   }
 
-  List<Widget> _buildGroupedEvents(List<CalendarEvent> events) {
-    final grouped = _groupByDate(events);
-    final days = grouped.keys.toList()..sort();
-
-    return days.expand((day) {
-      final dayEvents = grouped[day]!
-        ..sort((a, b) => a.date.compareTo(b.date));
-      return [
-        Padding(
-          padding: const EdgeInsets.only(top: 8, bottom: 4),
-          child: Text(
-            _formatDayHeading(day),
-            style: const TextStyle(
-              fontWeight: FontWeight.bold,
-              color: moodleTextDark,
-            ),
-          ),
-        ),
-        ...dayEvents.map((event) => Card(
-              color: moodleWhite,
-              elevation: 0,
-              margin: const EdgeInsets.only(bottom: 8),
-              shape: RoundedRectangleBorder(
-                side: const BorderSide(color: moodleBorder),
-                borderRadius: BorderRadius.circular(8),
-              ),
-              child: ListTile(
-                leading: Icon(
-                  _iconForType(event.type),
-                  color: moodlePurple,
-                ),
-                title: Text(event.title),
-                subtitle: Text(event.typeLabel),
-                trailing: Text(
-                  _formatTime(event.date),
-                  style: const TextStyle(fontSize: 12, color: moodleTextMuted),
-                ),
-              ),
-            )),
-      ];
-    }).toList();
+  String _formatDayHeading(DateTime day) {
+    const months = [
+      'Jan', 'Feb', 'Mar', 'Apr', 'May', 'Jun',
+      'Jul', 'Aug', 'Sep', 'Oct', 'Nov', 'Dec',
+    ];
+    return '${day.day} ${months[day.month - 1]} ${day.year}';
   }
 
   IconData _iconForType(CalendarEventType type) {

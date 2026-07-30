@@ -33,4 +33,30 @@ class AssignmentProvider extends ChangeNotifier {
   List<Assignment> forCourse(String courseId) {
     return _assignments.where((a) => a.courseId == courseId).toList();
   }
+
+  List<Assignment> filtered({String? courseId}) {
+    if (courseId == null) {
+      return assignments;
+    }
+    return forCourse(courseId);
+  }
+
+  Assignment? getById(String id) {
+    try {
+      return _assignments.firstWhere((a) => a.id == id);
+    } catch (_) {
+      return null;
+    }
+  }
+
+  void submitAssignment(String id) {
+    _assignments = _assignments
+        .map(
+          (assignment) => assignment.id == id
+              ? assignment.copyWith(status: AssignmentStatus.submitted)
+              : assignment,
+        )
+        .toList();
+    notifyListeners();
+  }
 }

@@ -22,6 +22,7 @@ class _ProfileViewState extends State<ProfileView> {
     });
   }
 
+  @override
   Widget build(BuildContext context) {
     final user = dummyUserProfile;
     final courses = context.watch<CourseProvider>().courses;

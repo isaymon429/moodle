@@ -3,7 +3,6 @@ import 'package:moodle/models/assignment.dart';
 import 'package:moodle/models/calendar_event.dart';
 import 'package:moodle/models/course.dart';
 
-
 class DummyUserProfile {
   const DummyUserProfile({
     required this.fullName,
@@ -31,6 +30,52 @@ const dummyUserProfile = DummyUserProfile(
   cohort: '2024/25',
 );
 
+const _uxdiTopics = [
+  Topic(
+    title: 'Week 1: Introduction',
+    resources: [
+      'Lecture slides — Introduction.pdf',
+      'Reading: UX basics',
+      'Forum: Say hello',
+    ],
+  ),
+  Topic(
+    title: 'Week 2: Research methods',
+    resources: [
+      'Workshop handout.pdf',
+      'Persona template.docx',
+      'User interview guide',
+    ],
+  ),
+  Topic(
+    title: 'Week 3: Prototyping',
+    resources: [
+      'Figma starter file',
+      'Wireframe checklist',
+      'Peer review form',
+    ],
+  ),
+  Topic(
+    title: 'Coursework',
+    resources: [
+      'Moodle Flutter brief.pdf',
+      'Marking criteria',
+      'Demo booking link',
+    ],
+  ),
+];
+
+const _defaultTopics = [
+  Topic(
+    title: 'Week 1: Introduction',
+    resources: ['Lecture slides.pdf', 'Reading list', 'Intro quiz'],
+  ),
+  Topic(
+    title: 'Week 2: Core concepts',
+    resources: ['Workshop notes.pdf', 'Lab worksheet', 'Discussion forum'],
+  ),
+];
+
 const List<Course> dummyCourses = [
   Course(
     id: 'uxdi-2024',
@@ -39,6 +84,8 @@ const List<Course> dummyCourses = [
     instructor: 'Dr Mani Gahrmani',
     term: '2025/26 Semester 1',
     colorHex: '#5D2D5F',
+    topics: _uxdiTopics,
+    isFavourite: true,
   ),
   Course(
     id: 'papl-2024',
@@ -47,6 +94,8 @@ const List<Course> dummyCourses = [
     instructor: 'Dr Sarah Chen',
     term: '2025/26 Semester 1',
     colorHex: '#0075FF',
+    topics: _defaultTopics,
+    isFavourite: true,
   ),
   Course(
     id: 'wd-2024',
@@ -55,6 +104,7 @@ const List<Course> dummyCourses = [
     instructor: 'Prof James Wright',
     term: '2025/26 Semester 1',
     colorHex: '#2E7D32',
+    topics: _defaultTopics,
   ),
   Course(
     id: 'dm-2024',
@@ -63,14 +113,16 @@ const List<Course> dummyCourses = [
     instructor: 'Dr Emily Hughes',
     term: '2025/26 Semester 1',
     colorHex: '#E65100',
+    topics: _defaultTopics,
   ),
   Course(
     id: 'cn-2024',
     code: 'CN',
     name: 'Computer Networks',
     instructor: 'Dr Ahmed Khan',
-    term: '2025/26 Semester 1',
+    term: '2025/26 Semester 2',
     colorHex: '#1565C0',
+    topics: _defaultTopics,
   ),
 ];
 
@@ -81,6 +133,8 @@ final List<Assignment> dummyAssignments = [
     title: 'Moodle Flutter Coursework',
     dueDate: DateTime(2026, 8, 15, 23, 59),
     status: AssignmentStatus.notSubmitted,
+    description:
+        'Recreate Moodle platform features in Flutter. Submit your GitHub fork link on Moodle and attend a live demo session.',
   ),
   Assignment(
     id: 'asgn-2',
@@ -89,6 +143,8 @@ final List<Assignment> dummyAssignments = [
     dueDate: DateTime(2026, 6, 20, 16, 0),
     status: AssignmentStatus.graded,
     grade: '72%',
+    description:
+        'Submit a case study documenting your UX process for a mobile app redesign.',
   ),
   Assignment(
     id: 'asgn-3',
@@ -96,6 +152,8 @@ final List<Assignment> dummyAssignments = [
     title: 'Lab 3 — Sorting Algorithms',
     dueDate: DateTime(2026, 7, 10, 12, 0),
     status: AssignmentStatus.submitted,
+    description:
+        'Implement and benchmark bubble, merge, and quick sort. Include unit tests.',
   ),
   Assignment(
     id: 'asgn-4',
@@ -103,6 +161,7 @@ final List<Assignment> dummyAssignments = [
     title: 'Lab 4 — Recursion',
     dueDate: DateTime(2026, 8, 1, 12, 0),
     status: AssignmentStatus.notSubmitted,
+    description: 'Complete the recursion exercises and submit your lab report.',
   ),
   Assignment(
     id: 'asgn-5',
@@ -111,6 +170,8 @@ final List<Assignment> dummyAssignments = [
     dueDate: DateTime(2026, 7, 25, 17, 0),
     status: AssignmentStatus.graded,
     grade: '68%',
+    description:
+        'Build a three-page responsive site using semantic HTML, CSS Grid, and minimal JavaScript.',
   ),
   Assignment(
     id: 'asgn-6',
@@ -118,6 +179,7 @@ final List<Assignment> dummyAssignments = [
     title: 'JavaScript DOM Exercise',
     dueDate: DateTime(2026, 8, 5, 17, 0),
     status: AssignmentStatus.submitted,
+    description: 'Manipulate the DOM with vanilla JavaScript and submit your code.',
   ),
   Assignment(
     id: 'asgn-7',
@@ -125,6 +187,7 @@ final List<Assignment> dummyAssignments = [
     title: 'ER Diagram Submission',
     dueDate: DateTime(2026, 8, 8, 17, 0),
     status: AssignmentStatus.notSubmitted,
+    description: 'Design and submit an ER diagram for the library database scenario.',
   ),
   Assignment(
     id: 'asgn-8',
@@ -133,6 +196,7 @@ final List<Assignment> dummyAssignments = [
     dueDate: DateTime(2026, 7, 15, 14, 0),
     status: AssignmentStatus.graded,
     grade: '75%',
+    description: 'Write a report comparing TCP and UDP for a given use case.',
   ),
 ];
 
@@ -170,7 +234,6 @@ final List<Announcement> dummyAnnouncements = [
   ),
 ];
 
-/// Ten calendar events spread across July 2026...
 final List<CalendarEvent> dummyCalendarEvents = [
   CalendarEvent(
     id: 'cal-1',
@@ -228,8 +291,8 @@ final List<CalendarEvent> dummyCalendarEvents = [
   ),
   CalendarEvent(
     id: 'cal-10',
-    title: 'Moodle Flutter coursework deadline',
-    date: DateTime(2026, 7, 31, 23, 59),
+    title: 'Flutter Moodle Coursework Deadline',
+    date: DateTime(2026, 8, 15, 23, 59),
     type: CalendarEventType.deadline,
   ),
 ];

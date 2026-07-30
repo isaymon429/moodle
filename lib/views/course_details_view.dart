@@ -1,11 +1,12 @@
 import 'package:flutter/material.dart';
+import 'package:go_router/go_router.dart';
 import 'package:moodle/constants.dart';
 import 'package:moodle/models/announcement.dart';
-import 'package:moodle/models/assignment.dart';
 import 'package:moodle/models/course.dart';
 import 'package:moodle/providers/assignment_provider.dart';
 import 'package:moodle/providers/course_provider.dart';
 import 'package:moodle/providers/notification_provider.dart';
+import 'package:moodle/routes.dart';
 import 'package:moodle/widgets/app_bar_widget.dart';
 import 'package:provider/provider.dart';
 
@@ -25,41 +26,6 @@ class _CourseDetailsViewState extends State<CourseDetailsView> {
   Course? _course;
   bool _isLoading = true;
 
-  static const _topicSections = [
-    _TopicPlaceholder(
-      title: 'Week 1: Introduction',
-      resources: [
-        'Lecture slides — Introduction.pdf',
-        'Reading: UX basics',
-        'Forum: Say hello',
-      ],
-    ),
-    _TopicPlaceholder(
-      title: 'Week 2: Research methods',
-      resources: [
-        'Workshop handout.pdf',
-        'Persona template.docx',
-        'User interview guide',
-      ],
-    ),
-    _TopicPlaceholder(
-      title: 'Week 3: Prototyping',
-      resources: [
-        'Figma starter file',
-        'Wireframe checklist',
-        'Peer review form',
-      ],
-    ),
-    _TopicPlaceholder(
-      title: 'Coursework',
-      resources: [
-        'Moodle Flutter brief.pdf',
-        'Marking criteria',
-        'Demo booking link',
-      ],
-    ),
-  ];
-
   @override
   void initState() {
     super.initState();
@@ -67,8 +33,11 @@ class _CourseDetailsViewState extends State<CourseDetailsView> {
   }
 
   Future<void> _loadData() async {
+    if (!mounted) return;
     await context.read<NotificationProvider>().loadAnnouncements();
+    if (!mounted) return;
     await context.read<AssignmentProvider>().loadAssignments();
+    if (!mounted) return;
     final course =
         await context.read<CourseProvider>().getCourseById(widget.courseId);
     if (mounted) {
@@ -79,10 +48,14 @@ class _CourseDetailsViewState extends State<CourseDetailsView> {
     }
   }
 
-  List<Announcement> _courseAnnouncements(
-    List<Announcement> all,
-  ) {
+  List<Announcement> _courseAnnouncements(List<Announcement> all) {
     return all.where((a) => a.courseId == widget.courseId).toList();
+  }
+
+  void _openCourseAssessments() {
+    context.go(
+      '${AppRoutes.assessments}?courseId=${widget.courseId}',
+    );
   }
 
   @override
@@ -142,27 +115,25 @@ class _CourseDetailsViewState extends State<CourseDetailsView> {
                               ),
                             )
                           : Column(
-                              children:
-                                  _courseAnnouncements(announcements).map(
-                                (announcement) {
-                                  return ListTile(
-                                    leading: const Icon(
-                                      Icons.campaign_outlined,
-                                      color: moodleBlue,
-                                    ),
-                                    title: Text(announcement.title),
-                                    subtitle: Text(
-                                      announcement.body,
-                                      maxLines: 2,
-                                      overflow: TextOverflow.ellipsis,
-                                    ),
-                                  );
-                                },
+                              children: _courseAnnouncements(announcements)
+                                  .map(
+                                (announcement) => ListTile(
+                                  leading: const Icon(
+                                    Icons.campaign_outlined,
+                                    color: moodleBlue,
+                                  ),
+                                  title: Text(announcement.title),
+                                  subtitle: Text(
+                                    announcement.body,
+                                    maxLines: 2,
+                                    overflow: TextOverflow.ellipsis,
+                                  ),
+                                ),
                               ).toList(),
                             ),
                     ),
                     const _SectionHeader(title: 'Topics'),
-                    ..._topicSections.map((section) {
+                    ..._course!.topics.map((topic) {
                       return Card(
                         color: moodleWhite,
                         elevation: 0,
@@ -173,13 +144,13 @@ class _CourseDetailsViewState extends State<CourseDetailsView> {
                         ),
                         child: ExpansionTile(
                           title: Text(
-                            section.title,
+                            topic.title,
                             style: const TextStyle(
                               fontWeight: FontWeight.bold,
                               color: moodlePurple,
                             ),
                           ),
-                          children: section.resources
+                          children: topic.resources
                               .map(
                                 (resource) => ListTile(
                                   leading: const Icon(
@@ -195,7 +166,18 @@ class _CourseDetailsViewState extends State<CourseDetailsView> {
                       );
                     }),
                     const SizedBox(height: 12),
-                    const _SectionHeader(title: 'Assessments'),
+                    Row(
+                      children: [
+                        const _SectionHeader(title: 'Assessments'),
+                        const Spacer(),
+                        TextButton(
+                          onPressed: assignments.isEmpty
+                              ? null
+                              : _openCourseAssessments,
+                          child: const Text('View all'),
+                        ),
+                      ],
+                    ),
                     Card(
                       color: moodleWhite,
                       elevation: 0,
@@ -220,6 +202,11 @@ class _CourseDetailsViewState extends State<CourseDetailsView> {
                                   subtitle: Text(
                                     'Due ${_formatDate(assignment.dueDate)} · ${assignment.statusLabel}',
                                   ),
+                                  trailing: const Icon(
+                                    Icons.chevron_right,
+                                    color: moodleTextMuted,
+                                  ),
+                                  onTap: _openCourseAssessments,
                                 );
                               }).toList(),
                             ),
@@ -257,14 +244,4 @@ class _SectionHeader extends StatelessWidget {
       ),
     );
   }
-}
-
-class _TopicPlaceholder {
-  const _TopicPlaceholder({
-    required this.title,
-    required this.resources,
-  });
-
-  final String title;
-  final List<String> resources;
 }

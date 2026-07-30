@@ -1,6 +1,6 @@
-import 'package:flutter/material.dart';
 import 'package:go_router/go_router.dart';
 import 'package:moodle/views/assessments_view.dart';
+import 'package:moodle/views/assignment_detail_view.dart';
 import 'package:moodle/views/calendar_view.dart';
 import 'package:moodle/views/course_details_view.dart';
 import 'package:moodle/views/courses_view.dart';
@@ -20,6 +20,7 @@ class AppRoutes {
   static const notifications = '/notifications';
 
   static String courseDetails(String id) => '/courses/$id';
+  static String assignmentDetail(String id) => '/assignments/$id';
 }
 
 GoRouter createRouter() {
@@ -47,7 +48,17 @@ GoRouter createRouter() {
       ),
       GoRoute(
         path: AppRoutes.assessments,
-        builder: (context, state) => const AssessmentsView(),
+        builder: (context, state) {
+          final courseId = state.uri.queryParameters['courseId'];
+          return AssessmentsView(courseId: courseId);
+        },
+      ),
+      GoRoute(
+        path: '/assignments/:id',
+        builder: (context, state) {
+          final id = state.pathParameters['id']!;
+          return AssignmentDetailView(assignmentId: id);
+        },
       ),
       GoRoute(
         path: AppRoutes.calendar,

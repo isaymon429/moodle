@@ -11,6 +11,7 @@ class Assignment {
     required this.title,
     required this.dueDate,
     required this.status,
+    required this.description,
     this.grade,
   });
 
@@ -19,6 +20,7 @@ class Assignment {
   final String title;
   final DateTime dueDate;
   final AssignmentStatus status;
+  final String description;
   final String? grade;
 
   String get statusLabel {
@@ -30,5 +32,20 @@ class Assignment {
       case AssignmentStatus.graded:
         return 'Graded';
     }
+  }
+
+  Assignment copyWith({
+    AssignmentStatus? status,
+    String? grade,
+  }) {
+    return Assignment(
+      id: id,
+      courseId: courseId,
+      title: title,
+      dueDate: dueDate,
+      status: status ?? this.status,
+      description: description,
+      grade: grade ?? this.grade,
+    );
   }
 }
