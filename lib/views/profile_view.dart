@@ -3,7 +3,7 @@ import 'package:moodle/constants.dart';
 import 'package:moodle/data/dummy_data.dart';
 import 'package:moodle/providers/course_provider.dart';
 import 'package:moodle/widgets/app_bar_widget.dart';
-import 'package:moodle/widgets/nav_drawer.dart';
+import 'package:moodle/widgets/moodle_scaffold.dart';
 import 'package:provider/provider.dart';
 
 class ProfileView extends StatefulWidget {
@@ -27,35 +27,39 @@ class _ProfileViewState extends State<ProfileView> {
     final user = dummyUserProfile;
     final courses = context.watch<CourseProvider>().courses;
 
-    return Scaffold(
+    return MoodleScaffold(
       appBar: const MoodleAppBar(title: 'Profile'),
-      drawer: const NavDrawer(),
       backgroundColor: moodleBg,
-      body: ListView(
-        padding: const EdgeInsets.all(16),
-        children: [
-          const SizedBox(height: 16),
-          Center(
-            child: CircleAvatar(
-              radius: 48,
-              backgroundColor: moodleGrayBg,
-              child: Icon(Icons.person, size: 52, color: moodlePurple),
-            ),
-          ),
-          const SizedBox(height: 16),
-          Center(
-            child: Text(
-              user.fullName,
-              style: const TextStyle(
-                fontSize: 22,
-                fontWeight: FontWeight.bold,
-                color: moodlePurple,
+      body: LayoutBuilder(
+        builder: (context, constraints) {
+          final wide = isWideScreen(context);
+
+          final profileHeader = Column(
+            children: [
+              const SizedBox(height: 16),
+              Center(
+                child: CircleAvatar(
+                  radius: 48,
+                  backgroundColor: moodleGrayBg,
+                  child: Icon(Icons.person, size: 52, color: moodlePurple),
+                ),
               ),
-              textAlign: TextAlign.center,
-            ),
-          ),
-          const SizedBox(height: 24),
-          Card(
+              const SizedBox(height: 16),
+              Center(
+                child: Text(
+                  user.fullName,
+                  style: const TextStyle(
+                    fontSize: 22,
+                    fontWeight: FontWeight.bold,
+                    color: moodlePurple,
+                  ),
+                  textAlign: TextAlign.center,
+                ),
+              ),
+            ],
+          );
+
+          final detailsCard = Card(
             color: moodleWhite,
             elevation: 0,
             shape: RoundedRectangleBorder(
@@ -83,18 +87,9 @@ class _ProfileViewState extends State<ProfileView> {
                 ),
               ],
             ),
-          ),
-          const SizedBox(height: 24),
-          const Text(
-            'Enrolled modules',
-            style: TextStyle(
-              fontSize: 18,
-              fontWeight: FontWeight.bold,
-              color: moodlePurple,
-            ),
-          ),
-          const SizedBox(height: 8),
-          Card(
+          );
+
+          final modulesCard = Card(
             color: moodleWhite,
             elevation: 0,
             shape: RoundedRectangleBorder(
@@ -125,8 +120,55 @@ class _ProfileViewState extends State<ProfileView> {
                 );
               }).toList(),
             ),
-          ),
-        ],
+          );
+
+          return ListView(
+            padding: const EdgeInsets.all(16),
+            children: [
+              profileHeader,
+              const SizedBox(height: 24),
+              if (wide)
+                Row(
+                  crossAxisAlignment: CrossAxisAlignment.start,
+                  children: [
+                    Expanded(child: detailsCard),
+                    const SizedBox(width: 16),
+                    Expanded(
+                      child: Column(
+                        crossAxisAlignment: CrossAxisAlignment.start,
+                        children: [
+                          const Text(
+                            'Enrolled modules',
+                            style: TextStyle(
+                              fontSize: 18,
+                              fontWeight: FontWeight.bold,
+                              color: moodlePurple,
+                            ),
+                          ),
+                          const SizedBox(height: 8),
+                          modulesCard,
+                        ],
+                      ),
+                    ),
+                  ],
+                )
+              else ...[
+                detailsCard,
+                const SizedBox(height: 24),
+                const Text(
+                  'Enrolled modules',
+                  style: TextStyle(
+                    fontSize: 18,
+                    fontWeight: FontWeight.bold,
+                    color: moodlePurple,
+                  ),
+                ),
+                const SizedBox(height: 8),
+                modulesCard,
+              ],
+            ],
+          );
+        },
       ),
     );
   }

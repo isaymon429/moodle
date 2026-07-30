@@ -8,6 +8,7 @@ import 'package:moodle/providers/course_provider.dart';
 import 'package:moodle/providers/notification_provider.dart';
 import 'package:moodle/routes.dart';
 import 'package:moodle/widgets/app_bar_widget.dart';
+import 'package:moodle/widgets/moodle_scaffold.dart';
 import 'package:provider/provider.dart';
 
 class CourseDetailsView extends StatefulWidget {
@@ -64,7 +65,8 @@ class _CourseDetailsViewState extends State<CourseDetailsView> {
     final assignments =
         context.watch<AssignmentProvider>().forCourse(widget.courseId);
 
-    return Scaffold(
+    return MoodleScaffold(
+      showNavigation: false,
       backgroundColor: moodleBg,
       appBar: MoodleAppBar(
         title: _course?.code ?? 'Course',

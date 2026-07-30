@@ -3,7 +3,7 @@ import 'package:moodle/constants.dart';
 import 'package:moodle/models/announcement.dart';
 import 'package:moodle/providers/notification_provider.dart';
 import 'package:moodle/widgets/app_bar_widget.dart';
-import 'package:moodle/widgets/nav_drawer.dart';
+import 'package:moodle/widgets/moodle_scaffold.dart';
 import 'package:provider/provider.dart';
 
 class NotificationsView extends StatefulWidget {
@@ -15,48 +15,73 @@ class NotificationsView extends StatefulWidget {
 
 class _NotificationsViewState extends State<NotificationsView> {
   @override
-  void initState() {
-    super.initState();
-    WidgetsBinding.instance.addPostFrameCallback((_) {
-      context.read<NotificationProvider>().loadAnnouncements();
-    });
-  }
-
-  @override
   Widget build(BuildContext context) {
     final notifications = context.watch<NotificationProvider>();
 
-    return Scaffold(
+    return MoodleScaffold(
       appBar: const MoodleAppBar(title: 'Notifications'),
-      drawer: const NavDrawer(),
       body: Container(
         color: moodleBg,
         child: notifications.isLoading
             ? const Center(child: CircularProgressIndicator())
-            : ListView(
-                padding: const EdgeInsets.all(24),
-                children: [
-                  const Text(
-                    'Notifications',
-                    style: TextStyle(
-                      fontSize: 28,
-                      fontWeight: FontWeight.bold,
-                      color: moodlePurple,
-                    ),
-                  ),
-                  const SizedBox(height: 24),
-                  ...notifications.announcements.map(
-                    (announcement) => _AnnouncementTile(
-                      announcement: announcement,
-                      isRead: notifications.isRead(announcement.id),
-                      onTap: () {
-                        context
-                            .read<NotificationProvider>()
-                            .markAsRead(announcement.id);
-                      },
-                    ),
-                  ),
-                ],
+            : LayoutBuilder(
+                builder: (context, constraints) {
+                  final columns =
+                      gridColumnCount(MediaQuery.sizeOf(context).width);
+                  final items = notifications.announcements;
+
+                  return ListView(
+                    padding: const EdgeInsets.all(24),
+                    children: [
+                      const Text(
+                        'Notifications',
+                        style: TextStyle(
+                          fontSize: 28,
+                          fontWeight: FontWeight.bold,
+                          color: moodlePurple,
+                        ),
+                      ),
+                      const SizedBox(height: 24),
+                      if (columns == 1)
+                        ...items.map(
+                          (announcement) => _AnnouncementTile(
+                            announcement: announcement,
+                            isRead: notifications.isRead(announcement.id),
+                            onTap: () {
+                              context
+                                  .read<NotificationProvider>()
+                                  .markAsRead(announcement.id);
+                            },
+                          ),
+                        )
+                      else
+                        GridView.builder(
+                          shrinkWrap: true,
+                          physics: const NeverScrollableScrollPhysics(),
+                          gridDelegate:
+                              SliverGridDelegateWithFixedCrossAxisCount(
+                            crossAxisCount: columns,
+                            crossAxisSpacing: 16,
+                            mainAxisSpacing: 16,
+                            childAspectRatio: 1.6,
+                          ),
+                          itemCount: items.length,
+                          itemBuilder: (context, index) {
+                            final announcement = items[index];
+                            return _AnnouncementTile(
+                              announcement: announcement,
+                              isRead: notifications.isRead(announcement.id),
+                              onTap: () {
+                                context
+                                    .read<NotificationProvider>()
+                                    .markAsRead(announcement.id);
+                              },
+                            );
+                          },
+                        ),
+                    ],
+                  );
+                },
               ),
       ),
     );

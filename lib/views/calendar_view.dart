@@ -3,7 +3,7 @@ import 'package:moodle/constants.dart';
 import 'package:moodle/data/dummy_data.dart';
 import 'package:moodle/models/calendar_event.dart';
 import 'package:moodle/widgets/app_bar_widget.dart';
-import 'package:moodle/widgets/nav_drawer.dart';
+import 'package:moodle/widgets/moodle_scaffold.dart';
 import 'package:table_calendar/table_calendar.dart';
 
 class CalendarView extends StatefulWidget {
@@ -52,160 +52,190 @@ class _CalendarViewState extends State<CalendarView> {
         ? _visibleEvents
         : _eventsForDay(_selectedDay!);
 
-    return Scaffold(
+    return MoodleScaffold(
       appBar: const MoodleAppBar(title: 'Calendar'),
-      drawer: const NavDrawer(),
       backgroundColor: moodleBg,
-      body: ListView(
-        padding: const EdgeInsets.all(16),
-        children: [
-          Row(
+      body: LayoutBuilder(
+        builder: (context, constraints) {
+          final wide = isWideScreen(context);
+
+          final calendarSection = Column(
+            crossAxisAlignment: CrossAxisAlignment.start,
             children: [
-              const Text(
-                'Calendar',
-                style: TextStyle(
-                  fontSize: 24,
-                  fontWeight: FontWeight.bold,
-                  color: moodlePurple,
-                ),
-              ),
-              const Spacer(),
-              FilterChip(
-                label: Text(_upcomingOnly ? 'Upcoming only' : 'All events'),
-                selected: _upcomingOnly,
-                onSelected: (value) => setState(() => _upcomingOnly = value),
-                selectedColor: moodlePurple.withValues(alpha: 0.15),
-                checkmarkColor: moodlePurple,
-              ),
-            ],
-          ),
-          const SizedBox(height: 12),
-          Card(
-            color: moodleWhite,
-            elevation: 0,
-            shape: RoundedRectangleBorder(
-              side: const BorderSide(color: moodleBorder),
-              borderRadius: BorderRadius.circular(8),
-            ),
-            child: TableCalendar<CalendarEvent>(
-              firstDay: DateTime(2026, 1, 1),
-              lastDay: DateTime(2026, 12, 31),
-              focusedDay: _focusedDay,
-              selectedDayPredicate: (day) => isSameDay(_selectedDay, day),
-              eventLoader: _eventsForDay,
-              calendarStyle: CalendarStyle(
-                todayDecoration: BoxDecoration(
-                  color: moodleBlue.withValues(alpha: 0.3),
-                  shape: BoxShape.circle,
-                ),
-                selectedDecoration: const BoxDecoration(
-                  color: moodlePurple,
-                  shape: BoxShape.circle,
-                ),
-                markerDecoration: const BoxDecoration(
-                  color: moodlePurple,
-                  shape: BoxShape.circle,
-                ),
-              ),
-              headerStyle: const HeaderStyle(
-                formatButtonVisible: false,
-                titleCentered: true,
-              ),
-              onDaySelected: (selectedDay, focusedDay) {
-                setState(() {
-                  _selectedDay = _dateOnly(selectedDay);
-                  _focusedDay = focusedDay;
-                });
-              },
-              onPageChanged: (focusedDay) {
-                _focusedDay = focusedDay;
-              },
-              calendarBuilders: CalendarBuilders(
-                markerBuilder: (context, day, events) {
-                  if (!_markedDays.contains(_dateOnly(day))) {
-                    return null;
-                  }
-                  return Positioned(
-                    bottom: 1,
-                    child: Container(
-                      width: 6,
-                      height: 6,
-                      decoration: const BoxDecoration(
-                        color: moodlePurple,
-                        shape: BoxShape.circle,
-                      ),
+              Row(
+                children: [
+                  const Text(
+                    'Calendar',
+                    style: TextStyle(
+                      fontSize: 24,
+                      fontWeight: FontWeight.bold,
+                      color: moodlePurple,
                     ),
-                  );
-                },
+                  ),
+                  const Spacer(),
+                  FilterChip(
+                    label: Text(_upcomingOnly ? 'Upcoming only' : 'All events'),
+                    selected: _upcomingOnly,
+                    onSelected: (value) => setState(() => _upcomingOnly = value),
+                    selectedColor: moodlePurple.withValues(alpha: 0.15),
+                    checkmarkColor: moodlePurple,
+                  ),
+                ],
               ),
-            ),
-          ),
-          const SizedBox(height: 16),
-          Row(
-            children: [
-              Text(
-                _selectedDay == null
-                    ? 'All events'
-                    : 'Events on ${_formatDayHeading(_selectedDay!)}',
-                style: const TextStyle(
-                  fontSize: 18,
-                  fontWeight: FontWeight.bold,
-                  color: moodlePurple,
-                ),
-              ),
-              if (_selectedDay != null) ...[
-                const Spacer(),
-                TextButton(
-                  onPressed: () => setState(() => _selectedDay = null),
-                  child: const Text('Show all'),
-                ),
-              ],
-            ],
-          ),
-          const SizedBox(height: 8),
-          if (listEvents.isEmpty)
-            const Text(
-              'No events for this selection.',
-              style: TextStyle(color: moodleTextMuted),
-            )
-          else
-            ...listEvents.map(
-              (event) => Card(
+              const SizedBox(height: 12),
+              Card(
                 color: moodleWhite,
                 elevation: 0,
-                margin: const EdgeInsets.only(bottom: 8),
                 shape: RoundedRectangleBorder(
                   side: const BorderSide(color: moodleBorder),
                   borderRadius: BorderRadius.circular(8),
                 ),
-                child: ListTile(
-                  leading: Icon(
-                    _iconForType(event.type),
-                    color: moodlePurple,
-                  ),
-                  title: Text(
-                    event.title,
-                    style: TextStyle(
-                      fontWeight: event.title.contains('Coursework Deadline')
-                          ? FontWeight.bold
-                          : FontWeight.normal,
-                      color: moodleTextDark,
+                child: TableCalendar<CalendarEvent>(
+                  firstDay: DateTime(2026, 1, 1),
+                  lastDay: DateTime(2026, 12, 31),
+                  focusedDay: _focusedDay,
+                  selectedDayPredicate: (day) => isSameDay(_selectedDay, day),
+                  eventLoader: _eventsForDay,
+                  calendarStyle: CalendarStyle(
+                    todayDecoration: BoxDecoration(
+                      color: moodleBlue.withValues(alpha: 0.3),
+                      shape: BoxShape.circle,
+                    ),
+                    selectedDecoration: const BoxDecoration(
+                      color: moodlePurple,
+                      shape: BoxShape.circle,
+                    ),
+                    markerDecoration: const BoxDecoration(
+                      color: moodlePurple,
+                      shape: BoxShape.circle,
                     ),
                   ),
-                  subtitle: Text(
-                    '${event.typeLabel} · ${_formatDayHeading(_dateOnly(event.date))}',
+                  headerStyle: const HeaderStyle(
+                    formatButtonVisible: false,
+                    titleCentered: true,
                   ),
-                  trailing: Text(
-                    _formatTime(event.date),
-                    style: const TextStyle(
-                      fontSize: 12,
-                      color: moodleTextMuted,
-                    ),
+                  onDaySelected: (selectedDay, focusedDay) {
+                    setState(() {
+                      _selectedDay = _dateOnly(selectedDay);
+                      _focusedDay = focusedDay;
+                    });
+                  },
+                  onPageChanged: (focusedDay) {
+                    _focusedDay = focusedDay;
+                  },
+                  calendarBuilders: CalendarBuilders(
+                    markerBuilder: (context, day, events) {
+                      if (!_markedDays.contains(_dateOnly(day))) {
+                        return null;
+                      }
+                      return Positioned(
+                        bottom: 1,
+                        child: Container(
+                          width: 6,
+                          height: 6,
+                          decoration: const BoxDecoration(
+                            color: moodlePurple,
+                            shape: BoxShape.circle,
+                          ),
+                        ),
+                      );
+                    },
                   ),
                 ),
               ),
-            ),
-        ],
+            ],
+          );
+
+          final eventsSection = Column(
+            crossAxisAlignment: CrossAxisAlignment.start,
+            children: [
+              Row(
+                children: [
+                  Text(
+                    _selectedDay == null
+                        ? 'All events'
+                        : 'Events on ${_formatDayHeading(_selectedDay!)}',
+                    style: const TextStyle(
+                      fontSize: 18,
+                      fontWeight: FontWeight.bold,
+                      color: moodlePurple,
+                    ),
+                  ),
+                  if (_selectedDay != null) ...[
+                    const Spacer(),
+                    TextButton(
+                      onPressed: () => setState(() => _selectedDay = null),
+                      child: const Text('Show all'),
+                    ),
+                  ],
+                ],
+              ),
+              const SizedBox(height: 8),
+              if (listEvents.isEmpty)
+                const Text(
+                  'No events for this selection.',
+                  style: TextStyle(color: moodleTextMuted),
+                )
+              else
+                ...listEvents.map(
+                  (event) => Card(
+                    color: moodleWhite,
+                    elevation: 0,
+                    margin: const EdgeInsets.only(bottom: 8),
+                    shape: RoundedRectangleBorder(
+                      side: const BorderSide(color: moodleBorder),
+                      borderRadius: BorderRadius.circular(8),
+                    ),
+                    child: ListTile(
+                      leading: Icon(
+                        _iconForType(event.type),
+                        color: moodlePurple,
+                      ),
+                      title: Text(
+                        event.title,
+                        style: TextStyle(
+                          fontWeight: event.title.contains('Coursework Deadline')
+                              ? FontWeight.bold
+                              : FontWeight.normal,
+                          color: moodleTextDark,
+                        ),
+                      ),
+                      subtitle: Text(
+                        '${event.typeLabel} · ${_formatDayHeading(_dateOnly(event.date))}',
+                      ),
+                      trailing: Text(
+                        _formatTime(event.date),
+                        style: const TextStyle(
+                          fontSize: 12,
+                          color: moodleTextMuted,
+                        ),
+                      ),
+                    ),
+                  ),
+                ),
+            ],
+          );
+
+          return ListView(
+            padding: const EdgeInsets.all(16),
+            children: [
+              if (wide)
+                Row(
+                  crossAxisAlignment: CrossAxisAlignment.start,
+                  children: [
+                    Expanded(flex: 3, child: calendarSection),
+                    const SizedBox(width: 16),
+                    Expanded(flex: 2, child: eventsSection),
+                  ],
+                )
+              else ...[
+                calendarSection,
+                const SizedBox(height: 16),
+                eventsSection,
+              ],
+            ],
+          );
+        },
       ),
     );
   }

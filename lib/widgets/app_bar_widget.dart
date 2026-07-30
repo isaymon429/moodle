@@ -1,7 +1,8 @@
 import 'package:flutter/material.dart';
 import 'package:go_router/go_router.dart';
 import 'package:moodle/constants.dart';
-import 'package:moodle/routes.dart';
+import 'package:moodle/providers/notification_provider.dart';
+import 'package:provider/provider.dart';
 
 class MoodleAppBar extends StatelessWidget implements PreferredSizeWidget {
   const MoodleAppBar({
@@ -16,8 +17,14 @@ class MoodleAppBar extends StatelessWidget implements PreferredSizeWidget {
   @override
   Size get preferredSize => const Size.fromHeight(kToolbarHeight);
 
+  void _openNotifications(BuildContext context) {
+    Scaffold.of(context).openEndDrawer();
+  }
+
   @override
   Widget build(BuildContext context) {
+    final unreadCount = context.watch<NotificationProvider>().unreadCount;
+
     return AppBar(
       backgroundColor: moodleWhite,
       foregroundColor: moodleTextDark,
@@ -38,9 +45,40 @@ class MoodleAppBar extends StatelessWidget implements PreferredSizeWidget {
           icon: const Icon(Icons.search_outlined),
           onPressed: () {},
         ),
-        IconButton(
-          icon: const Icon(Icons.notifications_none_outlined),
-          onPressed: () => context.go(AppRoutes.notifications),
+        Stack(
+          clipBehavior: Clip.none,
+          children: [
+            IconButton(
+              icon: const Icon(Icons.notifications_none_outlined),
+              onPressed: () => _openNotifications(context),
+              tooltip: 'Notifications',
+            ),
+            if (unreadCount > 0)
+              Positioned(
+                right: 6,
+                top: 6,
+                child: Container(
+                  padding: const EdgeInsets.all(4),
+                  decoration: const BoxDecoration(
+                    color: moodleBlue,
+                    shape: BoxShape.circle,
+                  ),
+                  constraints: const BoxConstraints(
+                    minWidth: 18,
+                    minHeight: 18,
+                  ),
+                  child: Text(
+                    unreadCount > 9 ? '9+' : '$unreadCount',
+                    textAlign: TextAlign.center,
+                    style: const TextStyle(
+                      color: moodleWhite,
+                      fontSize: 10,
+                      fontWeight: FontWeight.bold,
+                    ),
+                  ),
+                ),
+              ),
+          ],
         ),
         const SizedBox(width: 8),
       ],

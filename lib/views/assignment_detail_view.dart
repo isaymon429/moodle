@@ -6,6 +6,7 @@ import 'package:moodle/models/assignment.dart';
 import 'package:moodle/providers/assignment_provider.dart';
 import 'package:moodle/providers/course_provider.dart';
 import 'package:moodle/widgets/app_bar_widget.dart';
+import 'package:moodle/widgets/moodle_scaffold.dart';
 import 'package:provider/provider.dart';
 
 class AssignmentDetailView extends StatefulWidget {
@@ -75,7 +76,8 @@ class _AssignmentDetailViewState extends State<AssignmentDetailView> {
         context.watch<AssignmentProvider>().getById(widget.assignmentId);
 
     if (assignment == null) {
-      return Scaffold(
+      return MoodleScaffold(
+        showNavigation: false,
         appBar: const MoodleAppBar(title: 'Assignment', showBackButton: true),
         body: const Center(
           child: Text(
@@ -88,7 +90,8 @@ class _AssignmentDetailViewState extends State<AssignmentDetailView> {
 
     final canSubmit = assignment.status == AssignmentStatus.notSubmitted;
 
-    return Scaffold(
+    return MoodleScaffold(
+      showNavigation: false,
       backgroundColor: moodleBg,
       appBar: const MoodleAppBar(title: 'Assignment', showBackButton: true),
       body: SingleChildScrollView(

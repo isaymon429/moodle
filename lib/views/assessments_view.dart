@@ -7,7 +7,7 @@ import 'package:moodle/providers/assignment_provider.dart';
 import 'package:moodle/providers/course_provider.dart';
 import 'package:moodle/routes.dart';
 import 'package:moodle/widgets/app_bar_widget.dart';
-import 'package:moodle/widgets/nav_drawer.dart';
+import 'package:moodle/widgets/moodle_scaffold.dart';
 import 'package:provider/provider.dart';
 
 class AssessmentsView extends StatefulWidget {
@@ -68,9 +68,8 @@ class _AssessmentsViewState extends State<AssessmentsView> {
         assignmentProvider.filtered(courseId: widget.courseId);
     final filterLabel = _courseName(courses, widget.courseId);
 
-    return Scaffold(
+    return MoodleScaffold(
       appBar: const MoodleAppBar(title: 'Assessments'),
-      drawer: const NavDrawer(),
       backgroundColor: moodleBg,
       body: assignmentProvider.isLoading
           ? const Center(child: CircularProgressIndicator())
