@@ -1,157 +1,170 @@
-# Moodle — Flutter Coursework
+# Moodle Learning Management System App
+
+A Flutter-based responsive Moodle Learning Management System (LMS) client developed as part of an undergraduate Software Engineering coursework. The application recreates key Moodle features using Flutter, Provider, GoRouter, and Firebase Authentication.
 
 ## Table of Contents
-
 - [Overview](#overview)
-- [Getting Started](#getting-started)
-  - [Prerequisites](#prerequisites)
-  - [Fork and Clone the Repository](#fork-and-clone-the-repository)
-- [Marking Criteria](#marking-criteria)
-  - [Application Marks (75%)](#application-marks-75)
-  - [Software Development Practices Marks (25%)](#software-development-practices-marks-25)
-- [Submission and Demonstration](#submission-and-demonstration)
+- [key features](#key-features)
+- [Screenshots](#screenshots)
+- [Detailed Features](#detailed-features)
+  - [Basic Tier](#basic-tier)
+  - [Intermediate Tier](#intermediate-tier)
+  - [Advanced Tier](#advanced-tier)
+- [Tech Stack](#tech-stack)
+- [Folder Structure](#folder-structure)
+- [Setup and Installation](#setup-and-installation)
+- [Known Limitations](#known-limitations)
 
 ---
 
 ## Overview
+This application provides a responsive interface for students to access course materials, submit assignments, view calendar deadlines, receive notifications, search across LMS resources, and manage user profiles.
 
-Your task is to recreate a mobile-optimised version of the Moodle platform using Flutter. You must not start from scratch, as you need to begin by forking the GitHub repository that contains the incomplete template code. [The getting started section of this document](#getting-started) will explain more. Once you have completed the application, you will submit the link to your forked repository on Moodle for assessment and demonstrate your application on an online meeting, which you need to book using [this link](https://outlook.office.com/bookwithme/user/e0acc34f2ca040b295fb20cfce7425a2@port.ac.uk/meetingtype/qZuY5y_IuUimqFEq4d1oDA2?anonymous&ismsaljsauthenabled&ep=mlink). See the submission and demonstration sections for more information.
+---
+## Key Features
+
+- Responsive Flutter Web application
+- Firebase Authentication (Google + Email/Password)
+- Global Search
+- Provider State Management
+- GoRouter Navigation
+- Assignment Submission
+- Interactive Calendar
+- Notifications Panel
+- Responsive Desktop & Mobile Layout
+---
+
+## Screenshots
+
+| Login Page | Dashboard View |
+| :---: | :---: |
+| ![Login Page](screenshots/Moodle%20Login%20Page.png) | ![Dashboard View](screenshots/Dashboard.png) |
+
+| My Courses | Assessment Page |
+| :---: | :---: |
+| ![My Courses](screenshots/my%20course%20page.png) | ![Assessment Page](screenshots/Assessment%20page.png) |
+
+| Calendar View | Notifications Panel |
+| :---: | :---: |
+| ![Calendar View](screenshots/Calender.png) | ![Notifications Panel](screenshots/Notification%20Side%20bell.png) |
 
 ---
 
-## Getting Started
+## Detailed Features
 
-### Prerequisites
+### Basic Tier
+- **Dashboard View**: Overview of enrolled courses, upcoming assignments, and recent activity updates.
+- **App Bar & Navigation Drawer**: Header with app title, global search button, unread notification counter badge, and sliding drawer navigation.
+- **Static Page Interfaces**: UI views for user profile, enrolled courses, assessments list, calendar, and authentication pages.
 
-***You must already have a GitHub account to be able to start this coursework. If you have not done so, read and complete the exercises in [worksheet 0](https://manighahrmani.github.io/sandwich_shop/worksheet-0.html) before continuing.***
+### Intermediate Tier
+- **Declarative Navigation**: Route configuration using `go_router` with URL parameter parsing (`/courses/:id`, `/assignments/:id`).
+- **Provider State Management**: Centralized state management using `ChangeNotifierProvider` (`CourseProvider`, `AssignmentProvider`, `NotificationProvider`, `CalendarProvider`).
+- **Dynamic Courses Page**: Search courses by code or title, filter by academic term, and toggle favorite courses.
+- **Course Details View**: Accordion layout with collapsible course topics and resource links.
+- **Assignment Submission**: Assignment status tracking and interactive file upload / text submission flow.
+- **Interactive Calendar**: Event deadlines organized by date using `table_calendar` with day filtering.
+- **Notifications Panel**: Slide-out end drawer displaying course announcements and read/unread status tracking.
+- **Global Multi-Provider Search**: Real-time simultaneous search querying courses, assessments, and announcements with grouped results.
+- **Responsive Layout**: Adaptive layout shell (`MoodleScaffold`) supporting desktop side-rail (`>900px`) and mobile sliding drawer.
 
-***You also need to be able to edit and run a Flutter project in your environment of choice. You must also be able to commit your changes to GitHub. Both of these are explained in [worksheet 1](https://manighahrmani.github.io/sandwich_shop/worksheet-1.html); complete it before continuing if you have not done so already.***
+### Advanced Tier
+- **Firebase Authentication**: Email and password authentication alongside Google Sign-In integration.
+- **Route Guards**: Dynamic redirection ensuring unauthenticated users are redirected to login/registration routes.
+- **Live User Profile**: Display of authenticated Firebase user details including display name, email address, and profile photo URL.
 
-⚠️ If you do not own a high-spec computer, you can either use the university's machines (see the “Remote access to University computers” section of [the Study Anywhere document linked here](https://myport.port.ac.uk/it-support/student-it-support/study-anywhere)) or use [Firebase Studio](https://firebase.studio/). More details are in [worksheet 1](https://manighahrmani.github.io/sandwich_shop/worksheet-1.html).
+---
 
-### Fork and Clone the Repository
+## Tech Stack
+- **Framework**: [Flutter](https://flutter.dev) (Dart SDK `>=2.17.0 <4.0.0`)
+- **State Management**: [Provider](https://pub.dev/packages/provider) (`^6.1.2`)
+- **Routing**: [go_router](https://pub.dev/packages/go_router) (`^14.6.2`)
+- **Authentication**: [firebase_core](https://pub.dev/packages/firebase_core) (`^4.12.1`), [firebase_auth](https://pub.dev/packages/firebase_auth) (`^6.5.6`), [google_sign_in](https://pub.dev/packages/google_sign_in) (`^7.2.0`)
+- **Calendar**: [table_calendar](https://pub.dev/packages/table_calendar) (`^3.1.2`)
+- **File Uploads**: [file_picker](https://pub.dev/packages/file_picker) (`^8.1.4`)
 
-#### Step 1: Fork the Repository
+---
 
-Click the Fork button in the top right corner of [this page](https://github.com/manighahrmani/moodle/) to create your public copy of the repository. Or just head directly to this link: [https://github.com/manighahrmani/moodle/fork](https://github.com/manighahrmani/moodle/fork)
-
-![Step 1.1: Forking the Repository](images/step1_fork.png)
-
-Do not change anything on the Create fork page. You should then get a public fork of my repository with a URL like this (where YOUR-USERNAME is replaced with your actual GitHub username): [https://github.com/YOUR-USERNAME/moodle](https://github.com/YOUR-USERNAME/moodle)
-
-![Step 1.2: Forking the Repository](images/step1_fork_page.png)
-
-#### Step 2: Clone and Open in VS Code
-
-Open VS Code and click the Clone Repository button in the Source Control panel on the left side of the screen. Open your editor and clone this repository from the source control panel on the left. Alternatively, open the command palette with Ctrl+Shift+P or Cmd+Shift+P and enter “Git: Clone”.
-
-![Step 2.1: Opening in VS Code](images/step2_vscode.png)
-
-Paste the URL of your forked repository and press enter. You will then be prompted to select Open in This Window to open the cloned repository in VS Code.
-
-![Step 2.2: Selecting the Repository](images/step2_repos.png)
-
-If asked to install the Flutter extension and run flutter pub get in the pop-ups, go ahead and install and run them.
-
-![Step 2.3: Installing Flutter Extension and Running pub get](images/step2_install.png)
-
-If you do not get these pop-ups, go to the extensions tab on the left side of the screen and install the Flutter extension manually. Then, open the terminal and run flutter pub get. See the screenshot below for reference.
-
-![Step 2.4: Installing Flutter Extension and Running pub get](images/step2_install_alternative.png)
-
-#### Step 3: Complete First Setup Task
-
-***Open the lib/widgets/nav_drawer.dart file.***
-
-***Replace "Yourname Here" with your actual name.***
-
-***Replace "up1234567" with your actual UP identification number.***
-
-***Save the file and commit your change as shown below:***
-
-![Step 3: Complete First Setup Task](images/step3_commit.png)
-
-#### Step 4: Run the Application
-
-```bash
-flutter pub get
-flutter run -d chrome
+## Folder Structure
+```
+lib/
+├── constants.dart            # Design tokens, color palette, and layout breakpoints
+├── firebase_options.dart     # Firebase platform configurations
+├── main.dart                 # Application entry point & MultiProvider setup
+├── routes.dart               # GoRouter paths and auth redirect guards
+├── data/
+│   └── dummy_data.dart       # Mock dataset for courses, assignments, and announcements
+├── models/
+│   ├── announcement.dart     # Announcement data model
+│   ├── assignment.dart       # Assignment and status enum models
+│   ├── calendar_event.dart   # Calendar event model
+│   └── course.dart           # Course and Topic data models
+├── providers/
+│   ├── assignment_provider.dart    # Assignment state and submission logic
+│   ├── auth_provider.dart          # Firebase auth state & stream subscription
+│   ├── calendar_provider.dart      # Selected date and calendar event state
+│   ├── course_provider.dart        # Course search, term filtering, and favorites
+│   └── notification_provider.dart  # Announcement list and unread count tracking
+├── services/
+│   ├── announcement_service.dart   # Announcement data fetching service
+│   ├── assignment_service.dart     # Assignment data service
+│   ├── auth_service.dart           # FirebaseAuth & GoogleSignIn implementation
+│   ├── course_service.dart         # Course data service
+│   └── notification_service.dart   # Notification data service
+├── views/
+│   ├── assessments_view.dart       # Filtered assignment list view
+│   ├── assignment_detail_view.dart # Assignment detail and submission view
+│   ├── calendar_view.dart          # Interactive calendar view
+│   ├── course_details_view.dart    # Course topics and resources accordion
+│   ├── courses_view.dart           # Searchable courses grid view
+│   ├── dashboard_view.dart         # Main overview dashboard
+│   ├── global_search_view.dart     # Multi-provider grouped global search
+│   ├── login_view.dart             # Login screen (Email/Password & Google)
+│   ├── notifications_view.dart     # Dedicated notifications list page
+│   ├── profile_view.dart           # Firebase user profile view
+│   └── register_view.dart          # Account creation view
+└── widgets/
+    ├── app_bar_widget.dart         # Standard Moodle app bar header
+    ├── assignment_tile.dart        # Reusable assignment list item
+    ├── course_card.dart            # Reusable course card
+    ├── moodle_scaffold.dart        # Responsive layout shell (side-rail vs drawer)
+    ├── nav_drawer.dart             # Drawer and sidebar navigation widgets
+    └── notification_panel.dart     # End drawer notification panel
 ```
 
-Alternatively, click on the run button in the `main.dart` as shown below and make sure the device is set to Chrome:
+---
 
-![Step 4: Run the Application](images/step4_terminal.png)
+## Setup and Installation
 
-The application will build and open in a new Chrome browser window, displaying the Dashboard.
+### Prerequisites
+- [Flutter SDK](https://docs.flutter.dev/get-started/install) installed (`>=2.17.0`)
+- Google Chrome (or desktop platform target)
 
-#### Step 5: Emulate Mobile Layout in DevTools
+### Steps
+1. Install project dependencies:
+   ```bash
+   flutter pub get
+   ```
 
-To view the responsive layout and test your application:
+2. (Optional) Reconfigure Firebase settings if using a custom project:
+   ```bash
+   flutterfire configure
+   ```
 
-***Press F12 (or right-click anywhere and select Inspect) in Chrome to open Developer Tools.***
+3. Run the application in Chrome:
+   ```bash
+   flutter pub get
 
-***Click the Toggle Device Toolbar icon (or press Ctrl+Shift+M / Cmd+Shift+M) to emulate a mobile screen.***
+   flutter analyze
 
-***From the left-hand side dropdown, select an iPhone (e.g., iPhone 12 Pro) to emulate a mobile layout. See the screenshot below for reference.***
+   flutter test
 
-![Step 5: Emulate Mobile Layout in DevTools](images/step5_devtools_open.png)
-
-Remember your application must be designed for mobile devices first (we may not even run your submission on desktop layout during the demo).
+   flutter run -d chrome
+   ```
 
 ---
 
-## Marking Criteria
-
-This assessment is worth 100% of the mark for item 1. The mark for the assessment is divided into two components:
-
-***Application (functionality) (30%): Demonstrated through a live online demo booked using [this link](https://outlook.office.com/bookwithme/user/e0acc34f2ca040b295fb20cfce7425a2@port.ac.uk/meetingtype/qZuY5y_IuUimqFEq4d1oDA2?anonymous&ismsaljsauthenabled&ep=mlink)***
-
-***Software Development Practices (25%): Assessed through your repository***
-
-⚠️ You will only receive marks if you both submit the link to your forked repository on Moodle before the deadline and attend a demo session. Failure to do either will result in a mark of 0 for the entire coursework.
-
-### Application Marks (75%)
-
-Your objective is to reimplement features from the Moodle platform in your forked repository using Flutter. The features are structured as follows:
-
-| Feature | Description | Marks (%) |
-| :--- | :--- | :--- |
-| **Basic (40%)** | | |
-| [Static Dashboard](https://moodle.port.ac.uk/my/) | Dashboard layout and widgets with static content (hardcoded data acceptable, mobile view) | 10% |
-| [Static Navigation Drawer / AppBar](https://moodle.port.ac.uk/my/) | Top app bar and side navigation drawer with menus (links do not have to work at this stage) | 5% |
-| [Profile Page](https://moodle.port.ac.uk/user/profile.php) | Static profile view showing your student information, | 5% |
-| [Dummy Courses Page](https://moodle.port.ac.uk/my/courses.php) | Page displaying various modules you have (hardcoded data acceptable) | 5% |
-| Dummy Course Details Page (use your PAPL or UXDI module, i.e., this module) | Page displaying a few sections of the module, you can use placeholder text, linked copied from Moodle or images that you see on Moodle | 5% |
-| [Dummy Assessments Page](https://moodle.port.ac.uk/local/extend/myassessments.php) | Page showing assessments details, their dates and status (hardcoded data acceptable) | 3% |
-| [Calendar Page](https://moodle.port.ac.uk/calendar/view.php?view=month) | Section or page showing past or upcoming deadlines/tasks (hardcoded data acceptable, widgets do not need to function) | 4% |
-| [Authentication UI](https://moodle.port.ac.uk/login/index.php) | Login page (log out from Moodle and try the link to the left, buttons do not have to function) | 3% |
-| **Intermediate (35%)** | | |
-| Functioning Navigation | Full navigation across all pages; users should be able to navigate using the drawer, buttons, and URLs | 3% |
-| Dynamic Courses Overview Page | Courses overview page populated from data models or services with functioning search or filtering widgets | 6% |
-| Dynamic Course Details Page | Course topics and materials populated from data models or services with functioning expand/collapse or filtering widgets (you need to have at least one page fully functioning) | 6% |
-| Functional Assignment Submission | Assignment pages populated from data models or services with functioning text fields, file attachments, and local submission updates (you can recreate the assignment section for this coursework) | 6% |
-| Interactive Calendar | A functional calendar or list widget allowing users to filter upcoming tasks by date or view deadlines dynamically (the deadline for this coursework must be accurately displayed) | 6% |
-| [Notifications / Announcements Panel and Page](https://moodle.port.ac.uk/message/output/popup/notifications.php) | Working messaging drawer or notification side-panel displaying a list of alerts or system announcements | 3% |
-| Responsiveness | The layout of the application should be adaptive, and the application should function on desktop in addition to mobile view | 5% |
-| **Advanced (25%)** | | |
-| Authentication System | Full user authentication and account management (you must use Firebase Auth and enable Google Login) with persistent profile details | 15% |
-| Global Search | Complete search functionality across courses, resources, or activities from the AppBar or dashboard | 10% |
-
-*\*Hardcoded data refers to data written directly in code files rather than fetched from a live database. \*Dummy data is data generated for testing and illustration purposes.*
-
-### Software Development Practices Marks (25%)
-
-| Feature | Description | Marks (%) |
-| :--- | :--- | :--- |
-| **Git** | Regular, small, meaningful commits to your repository throughout development; clear commit messages | 40% |
-| **README** | A comprehensive, well-formatted and accurate README file (delete the template README first) | 30% |
-| **Testing** | Tests covering all or almost all of the application; passing tests | 20% |
-| **External Services** | Integration and utilisation of cloud services (at least two services, e.g., Auth, DB, Hosting) | 10% |
-
----
-
-## Submission and Demonstration
-
-**Submission:** Submit the link to your public forked repository on Moodle before the deadline. Open the Moodle page, locate the submission page for referral/deferral and paste your link into the editable Online Text field.
-
-**Demonstration:** The demos will take place online. You need to book your meetings **by 27th of July** using [this link](https://outlook.office.com/bookwithme/user/e0acc34f2ca040b295fb20cfce7425a2@port.ac.uk/meetingtype/qZuY5y_IuUimqFEq4d1oDA2?anonymous&ismsaljsauthenabled&ep=mlink). You will have up to 10 minutes to run your app live from a fresh clone and answer technical questions regarding your code and architecture.
+## Known Limitations
+- **Data Persistence**: Course data, topic resources, and assignment submission grades are managed in-memory via Provider state initialized from mock data.
+- **Backend Database**: Cloud Firestore / Remote DB synchronization is omitted in favor of local Provider state for coursework scope.
+- **File Storage Cloud Upload**: Assignment file attachments use `file_picker` to validate local file selection without persisting files to remote cloud storage buckets.
