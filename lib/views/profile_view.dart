@@ -1,6 +1,6 @@
 import 'package:flutter/material.dart';
 import 'package:moodle/constants.dart';
-import 'package:moodle/data/dummy_data.dart';
+import 'package:moodle/providers/auth_provider.dart';
 import 'package:moodle/providers/course_provider.dart';
 import 'package:moodle/widgets/app_bar_widget.dart';
 import 'package:moodle/widgets/moodle_scaffold.dart';
@@ -24,8 +24,12 @@ class _ProfileViewState extends State<ProfileView> {
 
   @override
   Widget build(BuildContext context) {
-    final user = dummyUserProfile;
+    final firebaseUser = context.watch<AuthProvider>().user;
     final courses = context.watch<CourseProvider>().courses;
+
+    final displayName = firebaseUser?.displayName?.trim();
+    final email = firebaseUser?.email?.trim();
+    final photoUrl = firebaseUser?.photoURL?.trim();
 
     return MoodleScaffold(
       appBar: const MoodleAppBar(title: 'Profile'),
@@ -41,13 +45,19 @@ class _ProfileViewState extends State<ProfileView> {
                 child: CircleAvatar(
                   radius: 48,
                   backgroundColor: moodleGrayBg,
-                  child: Icon(Icons.person, size: 52, color: moodlePurple),
+                  backgroundImage:
+                      photoUrl != null ? NetworkImage(photoUrl) : null,
+                  child: photoUrl == null
+                      ? const Icon(Icons.person, size: 52, color: moodlePurple)
+                      : null,
                 ),
               ),
               const SizedBox(height: 16),
               Center(
                 child: Text(
-                  user.fullName,
+                  displayName?.isNotEmpty == true
+                      ? displayName!
+                      : 'Name not set',
                   style: const TextStyle(
                     fontSize: 22,
                     fontWeight: FontWeight.bold,
@@ -69,21 +79,31 @@ class _ProfileViewState extends State<ProfileView> {
             child: Column(
               children: [
                 ListTile(
-                  leading: const Icon(Icons.badge_outlined, color: moodlePurple),
-                  title: const Text('UP number'),
-                  subtitle: Text(user.upNumber),
-                ),
-                const Divider(height: 1),
-                ListTile(
-                  leading: const Icon(Icons.school_outlined, color: moodlePurple),
-                  title: const Text('Programme'),
-                  subtitle: Text(user.programme),
+                  leading: const Icon(Icons.person_outline, color: moodlePurple),
+                  title: const Text('Display name'),
+                  subtitle: Text(
+                    displayName?.isNotEmpty == true
+                        ? displayName!
+                        : 'Not available',
+                  ),
                 ),
                 const Divider(height: 1),
                 ListTile(
                   leading: const Icon(Icons.email_outlined, color: moodlePurple),
                   title: const Text('Email'),
-                  subtitle: Text(user.email),
+                  subtitle: Text(
+                    email?.isNotEmpty == true ? email! : 'Not available',
+                  ),
+                ),
+                const Divider(height: 1),
+                ListTile(
+                  leading: const Icon(Icons.image_outlined, color: moodlePurple),
+                  title: const Text('Profile photo'),
+                  subtitle: Text(
+                    photoUrl?.isNotEmpty == true
+                        ? photoUrl!
+                        : 'No photo set',
+                  ),
                 ),
               ],
             ),

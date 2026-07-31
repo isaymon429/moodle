@@ -1,4 +1,5 @@
 import 'package:go_router/go_router.dart';
+import 'package:moodle/providers/auth_provider.dart';
 import 'package:moodle/views/assessments_view.dart';
 import 'package:moodle/views/assignment_detail_view.dart';
 import 'package:moodle/views/calendar_view.dart';
@@ -8,10 +9,12 @@ import 'package:moodle/views/dashboard_view.dart';
 import 'package:moodle/views/login_view.dart';
 import 'package:moodle/views/notifications_view.dart';
 import 'package:moodle/views/profile_view.dart';
+import 'package:moodle/views/register_view.dart';
 
 /// Named route paths used across the app (drawer, cards, buttons).
 class AppRoutes {
   static const login = '/login';
+  static const register = '/register';
   static const dashboard = '/dashboard';
   static const courses = '/courses';
   static const assessments = '/assessments';
@@ -23,13 +26,33 @@ class AppRoutes {
   static String assignmentDetail(String id) => '/assignments/$id';
 }
 
-GoRouter createRouter() {
+GoRouter createRouter(AuthProvider authProvider) {
   return GoRouter(
     initialLocation: AppRoutes.login,
+    refreshListenable: authProvider,
+    redirect: (context, state) {
+      final isLoggedIn = authProvider.isLoggedIn;
+      final isLoginRoute = state.matchedLocation == AppRoutes.login;
+      final isRegisterRoute = state.matchedLocation == AppRoutes.register;
+
+      if (!isLoggedIn && !isLoginRoute && !isRegisterRoute) {
+        return AppRoutes.login;
+      }
+
+      if (isLoggedIn && (isLoginRoute || isRegisterRoute)) {
+        return AppRoutes.dashboard;
+      }
+
+      return null;
+    },
     routes: [
       GoRoute(
         path: AppRoutes.login,
         builder: (context, state) => const LoginView(),
+      ),
+      GoRoute(
+        path: AppRoutes.register,
+        builder: (context, state) => const RegisterView(),
       ),
       GoRoute(
         path: AppRoutes.dashboard,

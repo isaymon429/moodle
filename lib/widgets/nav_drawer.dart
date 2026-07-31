@@ -1,8 +1,9 @@
 import 'package:flutter/material.dart';
 import 'package:go_router/go_router.dart';
 import 'package:moodle/constants.dart';
-import 'package:moodle/data/dummy_data.dart';
+import 'package:moodle/providers/auth_provider.dart';
 import 'package:moodle/routes.dart';
+import 'package:provider/provider.dart';
 
 /// Mobile slide-out navigation drawer.
 class NavDrawer extends StatelessWidget {
@@ -43,6 +44,16 @@ class NavDrawerContent extends StatelessWidget {
     context.go(path);
   }
 
+  Future<void> _logout(BuildContext context) async {
+    if (!isPermanent) {
+      Navigator.pop(context);
+    }
+    await context.read<AuthProvider>().signOut();
+    if (context.mounted) {
+      context.go(AppRoutes.login);
+    }
+  }
+
   bool _isSelected(String currentPath, String route) {
     if (route == AppRoutes.courses) {
       return currentPath == AppRoutes.courses ||
@@ -54,6 +65,11 @@ class NavDrawerContent extends StatelessWidget {
   @override
   Widget build(BuildContext context) {
     final currentPath = GoRouterState.of(context).uri.path;
+    final user = context.watch<AuthProvider>().user;
+
+    final displayName = user?.displayName?.trim();
+    final email = user?.email?.trim();
+    final photoUrl = user?.photoURL?.trim();
 
     return SafeArea(
       child: ListView(
@@ -67,14 +83,20 @@ class NavDrawerContent extends StatelessWidget {
               crossAxisAlignment: CrossAxisAlignment.start,
               mainAxisAlignment: MainAxisAlignment.end,
               children: [
-                const CircleAvatar(
+                CircleAvatar(
                   radius: 26,
                   backgroundColor: moodleWhite,
-                  child: Icon(Icons.person, size: 30, color: moodlePurple),
+                  backgroundImage:
+                      photoUrl != null ? NetworkImage(photoUrl) : null,
+                  child: photoUrl == null
+                      ? const Icon(Icons.person, size: 30, color: moodlePurple)
+                      : null,
                 ),
                 const SizedBox(height: 10),
                 Text(
-                  dummyUserProfile.fullName,
+                  displayName?.isNotEmpty == true
+                      ? displayName!
+                      : 'Signed-in user',
                   style: const TextStyle(
                     color: moodleWhite,
                     fontWeight: FontWeight.bold,
@@ -82,7 +104,7 @@ class NavDrawerContent extends StatelessWidget {
                   ),
                 ),
                 Text(
-                  dummyUserProfile.email,
+                  email?.isNotEmpty == true ? email! : 'No email',
                   style: const TextStyle(
                     color: Colors.white70,
                     fontSize: 12,
@@ -132,7 +154,7 @@ class NavDrawerContent extends StatelessWidget {
             icon: Icons.logout,
             label: 'Logout',
             selected: false,
-            onTap: () => _goTo(context, AppRoutes.login),
+            onTap: () => _logout(context),
           ),
         ],
       ),
