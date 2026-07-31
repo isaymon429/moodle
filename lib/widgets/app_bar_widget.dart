@@ -2,6 +2,7 @@ import 'package:flutter/material.dart';
 import 'package:go_router/go_router.dart';
 import 'package:moodle/constants.dart';
 import 'package:moodle/providers/notification_provider.dart';
+import 'package:moodle/routes.dart';
 import 'package:provider/provider.dart';
 
 class MoodleAppBar extends StatelessWidget implements PreferredSizeWidget {
@@ -43,7 +44,8 @@ class MoodleAppBar extends StatelessWidget implements PreferredSizeWidget {
       actions: [
         IconButton(
           icon: const Icon(Icons.search_outlined),
-          onPressed: () {},
+          onPressed: () => context.push(AppRoutes.search),
+          tooltip: 'Global Search',
         ),
         Stack(
           clipBehavior: Clip.none,

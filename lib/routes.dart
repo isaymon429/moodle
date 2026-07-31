@@ -6,6 +6,7 @@ import 'package:moodle/views/calendar_view.dart';
 import 'package:moodle/views/course_details_view.dart';
 import 'package:moodle/views/courses_view.dart';
 import 'package:moodle/views/dashboard_view.dart';
+import 'package:moodle/views/global_search_view.dart';
 import 'package:moodle/views/login_view.dart';
 import 'package:moodle/views/notifications_view.dart';
 import 'package:moodle/views/profile_view.dart';
@@ -21,6 +22,7 @@ class AppRoutes {
   static const calendar = '/calendar';
   static const profile = '/profile';
   static const notifications = '/notifications';
+  static const search = '/search';
 
   static String courseDetails(String id) => '/courses/$id';
   static String assignmentDetail(String id) => '/assignments/$id';
@@ -94,6 +96,10 @@ GoRouter createRouter(AuthProvider authProvider) {
       GoRoute(
         path: AppRoutes.notifications,
         builder: (context, state) => const NotificationsView(),
+      ),
+      GoRoute(
+        path: AppRoutes.search,
+        builder: (context, state) => const GlobalSearchView(),
       ),
     ],
   );
